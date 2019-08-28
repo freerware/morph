@@ -1,0 +1,31 @@
+{
+	"tables": [
+		{
+			"typeName": "example.User",
+			"name": "user",
+			"alias": "U",
+			"columns": [
+				{
+					"name": "uuid",
+					"field": "UUID"
+				},
+				{
+					"name": "username",
+					"field": "Username"
+				},
+				{
+					"name": "password",
+					"field": "Password"
+				},
+				{
+					"name": "giveName",
+					"field": "GivenName"
+				},
+				{
+					"name": "surname",
+					"field": "Surname"
+				}
+			]
+		}
+	]
+}
