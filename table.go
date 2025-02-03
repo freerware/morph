@@ -63,7 +63,7 @@ func (t *Table) ColumnName(field string) (string, error) {
 	if column, ok := t.columnsByField[field]; ok {
 		return column.Name(), nil
 	}
-	return "", fmt.Errorf("no mapping for field %q", field)
+	return "", fmt.Errorf("morph: no mapping for field %q", field)
 }
 
 // FieldName retrieves the field name associated to the provided column name.
@@ -74,7 +74,7 @@ func (t *Table) FieldName(name string) (string, error) {
 	if column, ok := t.columnsByName[name]; ok {
 		return column.Field(), nil
 	}
-	return "", fmt.Errorf("no mapping for column %q", name)
+	return "", fmt.Errorf("morph: no mapping for column %q", name)
 }
 
 // Columns retrieves all of the columns for the table.
@@ -93,14 +93,14 @@ func (t *Table) AddColumn(column Column) error {
 	}
 	if _, ok := t.columnsByName[column.Name()]; ok {
 		return fmt.Errorf(
-			"column with name %q already exists", column.Name())
+			"morph: column with name %q already exists", column.Name())
 	}
 	if t.columnsByField == nil {
 		t.columnsByField = make(map[string]Column)
 	}
 	if _, ok := t.columnsByField[column.Field()]; ok {
 		return fmt.Errorf(
-			"column with field %q already exists", column.Field())
+			"morph: column with field %q already exists", column.Field())
 	}
 	t.columnsByName[column.Name()],
 		t.columnsByField[column.Field()] = column, column
