@@ -7,4 +7,4 @@ bins:
 	go build
 
 test: bins
-	go test -v -race -covermode=atomic -coverprofile=coverage.out
+	go test -v -race -covermode=atomic -coverprofile=morph.coverprofile
