@@ -6,5 +6,5 @@ clean:
 bins:
 	go build
 
-test: bins
+tests: bins
 	go test -v -race -covermode=atomic -coverprofile=morph.coverprofile
