@@ -2,11 +2,9 @@ all: bins
 
 clean:
 	go clean -x
-	rm -r --force vendor/
 
 bins:
-	dep ensure -v
 	go build
 
-test: bins
-	go test -v -covermode=count -coverprofile=coverage.out
+tests: bins
+	go test -v -race -covermode=atomic -coverprofile=morph.coverprofile
