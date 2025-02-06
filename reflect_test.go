@@ -1,0 +1,401 @@
+package morph_test
+
+import (
+	"testing"
+	"time"
+
+	"github.com/freerware/morph"
+	"github.com/stretchr/testify/suite"
+)
+
+type TestModel struct {
+	ID      int `db:"identifier"`
+	Name    string
+	Another AnotherTestModel
+}
+
+func (t TestModel) CreatedAt() time.Time {
+	return time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+}
+
+type AnotherTestModel struct {
+	ID          int
+	Title       string
+	Description *string
+	secret      string
+}
+
+type ReflectTestSuite struct {
+	suite.Suite
+
+	obj interface{}
+}
+
+func TestReflectTestSuite(t *testing.T) {
+	suite.Run(t, new(ReflectTestSuite))
+}
+
+func (s *ReflectTestSuite) SetupTest() {
+	s.obj = TestModel{
+		ID:   1,
+		Name: "test",
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+}
+
+func (s *ReflectTestSuite) TestReflect() {
+	tests := []struct {
+		name     string
+		obj      interface{}
+		options  []morph.Option
+		expected func() morph.Table
+		err      error
+	}{
+		{
+			name:    "NotStruct_Error",
+			obj:     2,
+			options: []morph.Option{},
+			err:     morph.ErrNotStruct,
+		},
+		{
+			name:    "WithNoOptions_Success",
+			obj:     s.obj,
+			options: []morph.Option{},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithInferredTableName_Singular_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithInferredTableName(morph.SnakeTableNameStrategy, false)},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_model")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithInferredTableName_CamelCase_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithInferredTableName(morph.CamelTableNameStrategy, true)},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("TestModels")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithTableName_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithTableName("TEST_MOD")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("TEST_MOD")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithTableAlias_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithTableAlias("tm1")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("tm1")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithTag_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithTag("db")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("identifier")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithoutMethods_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithoutMethods("CreatedAt")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithoutMatchingMethods_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithoutMatchingMethods("^CreatedAt$")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("string")
+
+				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithoutFields_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithoutFields("Name")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithoutMatchingFields_Success",
+			obj:     s.obj,
+			options: []morph.Option{morph.WithoutMatchingFields("^Name$")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				return t
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// action.
+			actual, err := morph.Reflect(test.obj, test.options...)
+
+			// assert.
+			if test.expected != nil {
+				expected := test.expected()
+
+				s.Equal(expected.Name(), actual.Name())
+				s.Equal(expected.Alias(), actual.Alias())
+				s.Equal(expected.TypeName(), actual.TypeName())
+				s.ElementsMatch(expected.ColumnNames(), actual.ColumnNames())
+				s.ElementsMatch(expected.Columns(), actual.Columns())
+			}
+
+			s.Equal(test.err, err)
+		})
+	}
+}

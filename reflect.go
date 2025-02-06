@@ -6,43 +6,67 @@ import (
 	"regexp"
 	"slices"
 	"strings"
+	"time"
+
+	"github.com/gertd/go-pluralize"
+	"github.com/iancoleman/strcase"
 )
 
 var (
+
+	// ErrNotStruct is returned when the input being reflected is not a struct.
+	// A struct is required to reflect the fields and methods to construct the
+	// table metadata.
 	ErrNotStruct = errors.New("morph: input must be a struct")
 )
 
-func Reflect(obj interface{}, options ...Option) (map[string]Table, error) {
+// Reflect observes the provided object and generates metadata from it
+// using the provided options.
+func Reflect(obj interface{}, options ...Option) (Table, error) {
 	t := reflect.TypeOf(obj)
 	if t.Kind() != reflect.Struct {
-		return nil, ErrNotStruct
+		return Table{}, ErrNotStruct
 	}
 
 	configuration := ReflectConfiguration{}
 	WithInferredTableName(SnakeTableNameStrategy, true)(&configuration)
-	WithInferredTableAlias(UppercaseTableAliasStrategy, 1)(&configuration)
+	WithInferredTableAlias(UppercaseTableAliasStrategy, DefaultTableAliasLength)(&configuration)
+	WithInferredColumnNames(SnakeColumnNameStrategy)(&configuration)
 
 	for _, option := range options {
 		option(&configuration)
 	}
 
-	if configuration.TableName == nil {
-		if configuration.TableNameStrategy == nil {
-			return nil, errors.New("morph: table name strategy must be provided")
+	tableName := configuration.TableName
+	if configuration.IsInferredTableName {
+		if configuration.SnakeCaseTableName() {
+			tName := strcase.ToSnake(t.Name())
+			tableName = &tName
 		}
 
-		if *configuration.TableNameStrategy == SnakeTableNameStrategy {
-			tableName := strings.ToLower(t.Name())
-			configuration.TableName = &tableName
+		if configuration.CamelCaseTableName() {
+			tName := strcase.ToCamel(t.Name())
+			tableName = &tName
 		}
 
-		if *configuration.TableNameStrategy == CamelTableNameStrategy {
-			tableName := strings.ToLower(t.Name())
-			configuration.TableName = &tableName
+		if configuration.IsTableNamePlural {
+			tName := pluralize.NewClient().Plural(*tableName)
+			tableName = &tName
 		}
 	}
 
-	tableName := *configuration.TableName
+	tableAlias := configuration.TableAlias
+	if configuration.IsInferredTableAlias {
+		if configuration.UppercaseTableAlias() {
+			a := strings.ToUpper((*tableName)[:*configuration.TableAliasLength])
+			tableAlias = &a
+		}
+
+		if configuration.LowercaseTableAlias() {
+			a := strings.ToLower((*tableName)[:*configuration.TableAliasLength])
+			tableAlias = &a
+		}
+	}
 
 	val := reflect.ValueOf(obj)
 
@@ -51,12 +75,12 @@ func Reflect(obj interface{}, options ...Option) (map[string]Table, error) {
 	columns = append(columns, methods(t, val, configuration)...)
 
 	table := Table{}
-	table.SetTypeName(t.Name())
-	table.SetName(tableName)
-	table.SetAlias(strings.ToUpper(tableName[:1]))
+	table.SetType(obj)
+	table.SetName(*tableName)
+	table.SetAlias(*tableAlias)
 	table.AddColumns(columns...)
 
-	return map[string]Table{table.Name(): table}, nil
+	return table, nil
 }
 
 func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
@@ -72,11 +96,22 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			continue
 		}
 
+		if fieldVal.Kind() == reflect.Ptr {
+			fieldVal = fieldVal.Elem()
+		}
+
+		// ignore fields to other structs. if we want to retrieve
+		// metadata for these fields, we should call Reflect on them directly.
+		// NOTE: it would be nice to be able to recursively reflect struct
+		// fields, but where things fall down is how we'd propogate the options
+		// to each call in a way that makes sense.
+		if fieldVal.Kind() == reflect.Struct {
+			continue
+		}
+
+		var tagValue string
 		if c.Tag != nil {
-			fieldName = field.Tag.Get(*c.Tag)
-			if fieldName == "" {
-				fieldName = field.Name
-			}
+			tagValue = field.Tag.Get(*c.Tag)
 		}
 
 		if c.FieldExclusionPattern != nil && *c.FieldExclusionPattern != "" {
@@ -89,9 +124,21 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			continue
 		}
 
+		columnName := fieldName
+		if tagValue != "" {
+			columnName = tagValue
+		} else if c.IsInferredColumnNames {
+			if c.SnakeCaseColumnName() {
+				columnName = strcase.ToSnake(columnName)
+			}
+			if c.CamelCaseColumnName() {
+				columnName = strcase.ToCamel(columnName)
+			}
+		}
+
 		var column Column
 		column.SetField(fieldName)
-		column.SetName(strings.ToLower(fieldName))
+		column.SetName(columnName)
 		column.SetFieldType(fieldType)
 		column.SetStrategy(FieldStrategyStructField)
 		columns = append(columns, column)
@@ -105,7 +152,6 @@ func methods(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 	for i := 0; i < t.NumMethod(); i++ {
 		method := t.Method(i)
 		fieldName := method.Name
-		columnName := strings.ToLower(method.Name)
 
 		if method.Type.NumOut() == 0 {
 			continue
@@ -116,12 +162,12 @@ func methods(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			returnType = returnType.Elem()
 		}
 
-		if returnType.Kind() == reflect.Struct {
+		if returnType.Kind() == reflect.Struct && returnType != reflect.TypeOf(time.Time{}) {
 			continue
 		}
 		fieldType := method.Type.Out(0).String()
 
-		if c.MethodExclusionPattern != nil && *c.FieldExclusionPattern != "" {
+		if c.MethodExclusionPattern != nil && *c.MethodExclusionPattern != "" {
 			if regexp.MustCompile(*c.MethodExclusionPattern).MatchString(fieldName) {
 				continue
 			}
@@ -129,6 +175,16 @@ func methods(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 
 		if slices.Contains(c.MethodExclusions, fieldName) {
 			continue
+		}
+
+		columnName := fieldName
+		if c.IsInferredColumnNames {
+			if c.SnakeCaseColumnName() {
+				columnName = strcase.ToSnake(columnName)
+			}
+			if c.CamelCaseColumnName() {
+				columnName = strcase.ToCamel(columnName)
+			}
 		}
 
 		var column Column
