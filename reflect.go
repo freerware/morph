@@ -17,16 +17,23 @@ var (
 	// ErrNotStruct is returned when the input being reflected is not a struct.
 	// A struct is required to reflect the fields and methods to construct the
 	// table metadata.
-	ErrNotStruct = errors.New("morph: input must be a struct")
+	ErrNotStruct = errors.New("morph: input must be a struct or pointer to a struct")
 )
 
 // Reflect observes the provided object and generates metadata from it
 // using the provided options.
 func Reflect(obj interface{}, options ...Option) (Table, error) {
 	t := reflect.TypeOf(obj)
+	val := reflect.ValueOf(obj)
+	if t.Kind() == reflect.Ptr {
+		val = reflect.Indirect(val)
+		t = t.Elem()
+	}
+
 	if t.Kind() != reflect.Struct {
 		return Table{}, ErrNotStruct
 	}
+	pt := reflect.PointerTo(t)
 
 	configuration := ReflectConfiguration{}
 	WithInferredTableName(SnakeTableNameStrategy, true)(&configuration)
@@ -68,11 +75,9 @@ func Reflect(obj interface{}, options ...Option) (Table, error) {
 		}
 	}
 
-	val := reflect.ValueOf(obj)
-
 	columns := []Column{}
 	columns = append(columns, fields(t, val, configuration)...)
-	columns = append(columns, methods(t, val, configuration)...)
+	columns = append(columns, methods(pt, configuration)...)
 
 	table := Table{}
 	table.SetType(obj)
@@ -114,7 +119,7 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			tagValue = field.Tag.Get(*c.Tag)
 		}
 
-		if c.FieldExclusionPattern != nil && *c.FieldExclusionPattern != "" {
+		if c.HasFieldExclusionPattern() {
 			if regexp.MustCompile(*c.FieldExclusionPattern).MatchString(fieldName) {
 				continue
 			}
@@ -146,7 +151,7 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 	return columns
 }
 
-func methods(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
+func methods(t reflect.Type, c ReflectConfiguration) []Column {
 	columns := []Column{}
 
 	for i := 0; i < t.NumMethod(); i++ {
@@ -167,7 +172,7 @@ func methods(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 		}
 		fieldType := method.Type.Out(0).String()
 
-		if c.MethodExclusionPattern != nil && *c.MethodExclusionPattern != "" {
+		if c.HasMethodExclusionPattern() {
 			if regexp.MustCompile(*c.MethodExclusionPattern).MatchString(fieldName) {
 				continue
 			}
