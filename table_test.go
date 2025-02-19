@@ -3,6 +3,7 @@ package morph_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/freerware/morph"
 	"github.com/stretchr/testify/suite"
@@ -274,4 +275,352 @@ func (s *TableTestSuite) TestTable_AddColumns_AlreadyExists() {
 
 	// assert.
 	s.Error(err)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateValue_PointersDereferenced() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"id":         1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateValue_WithTags() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m, morph.WithTag("db"))
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"identifier": 1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateValue_NilsPreserved() {
+	// arrange.
+	m := AnotherTestModel{
+		ID:          2,
+		Title:       "another",
+		Description: nil,
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+
+	var description *string
+	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
+}
+
+func (s *TableTestSuite) TestTable_EvaluatePointer_PointersDereferenced() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(&m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"id":         1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluatePointer_WithTags() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m, morph.WithTag("db"))
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(&m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"identifier": 1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluatePointer_NilsPreserved() {
+	// arrange.
+	m := AnotherTestModel{
+		ID:          2,
+		Title:       "another",
+		Description: nil,
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(&m)
+
+	// assert.
+	s.NoError(err)
+
+	var description *string
+	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateMismatched_PointersDereferenced() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"id":         1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateMismatched_WithTags() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m, morph.WithTag("db"))
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Equal(
+		map[string]interface{}{
+			"identifier": 1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_EvaluateMismatched_NilsPreserved() {
+	// arrange.
+	m := AnotherTestModel{
+		ID:          2,
+		Title:       "another",
+		Description: nil,
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+
+	var description *string
+	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MissingTypeName() {
+	// arrange.
+	s.sut.SetTypeName("")
+	s.sut.SetAlias("U")
+	s.sut.SetName("users")
+
+	// action.
+	_, err := s.sut.Evaluate(struct{}{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingTypeName)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MissingTableName() {
+	// arrange.
+	s.sut.SetTypeName("example.User")
+	s.sut.SetAlias("U")
+	s.sut.SetName("")
+
+	// action.
+	_, err := s.sut.Evaluate(struct{}{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingTableName)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MissingTableAlias() {
+	// arrange.
+	s.sut.SetTypeName("example.User")
+	s.sut.SetAlias("")
+	s.sut.SetName("users")
+
+	// action.
+	_, err := s.sut.Evaluate(struct{}{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingTableAlias)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MissingColumns() {
+	// arrange.
+	s.sut.SetTypeName("example.User")
+	s.sut.SetAlias("U")
+	s.sut.SetName("users")
+
+	// action.
+	_, err := s.sut.Evaluate(struct{}{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingColumns)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MismatchingTypeName() {
+	// arrange.
+	s.sut.SetTypeName("example.User")
+	s.sut.SetAlias("U")
+	s.sut.SetName("users")
+
+	column := morph.Column{}
+	column.SetField("Username")
+	column.SetName("username")
+	column.SetStrategy(morph.FieldStrategyStructField)
+
+	s.sut.AddColumns(column)
+
+	// action.
+	_, err := s.sut.Evaluate(struct{}{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMismatchingTypeName)
 }

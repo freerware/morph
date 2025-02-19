@@ -1,6 +1,33 @@
 package morph
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"reflect"
+	"strings"
+)
+
+var (
+	// ErrMissingTypeName represents an error encountered when evaluation is attempted but the
+	// table does not have a type name configured.
+	ErrMissingTypeName = errors.New("morph: must have table type name to evaluate")
+
+	// ErrMissingTableName represents an error encountered when evaluation is attempted but the
+	// table does not have a table name configured.
+	ErrMissingTableName = errors.New("morph: must have table name to evaluate")
+
+	// ErrMissingTableAlias represents an error encountered when evaluation is attempted but the
+	// table does not have a table alias configured.
+	ErrMissingTableAlias = errors.New("morph: must have table alias to evaluate")
+
+	// ErrMissingColumns represents an error encountered when evaluation is attempted but the
+	// table does not have any columns configured.
+	ErrMissingColumns = errors.New("morph: must have columns to evaluate")
+
+	// ErrMismatchingTypeName represents an error encountered when evaluation is attempted but the
+	// table type name does not match the type name of the object being evaluated.
+	ErrMismatchingTypeName = errors.New("morph: must have matching type names to evaluate")
+)
 
 // Table represents a mapping between an entity and a database table.
 type Table struct {
@@ -18,7 +45,7 @@ func (t *Table) SetType(entity interface{}) {
 
 // SetTypeName modifies the entity type name for the table.
 func (t *Table) SetTypeName(typeName string) {
-	t.typeName = typeName
+	t.typeName = strings.Trim(typeName, " ")
 }
 
 // TypeName retrieves the type name of the entity associated to the table.
@@ -33,7 +60,7 @@ func (t *Table) Name() string {
 
 // SetName modifies the name of the table.
 func (t *Table) SetName(name string) {
-	t.name = name
+	t.name = strings.Trim(name, " ")
 }
 
 // Alias retrieves the alias for the table.
@@ -43,7 +70,7 @@ func (t *Table) Alias() string {
 
 // SetAlias modifies the alias of the table.
 func (t *Table) SetAlias(alias string) {
-	t.alias = alias
+	t.alias = strings.Trim(alias, " ")
 }
 
 // ColumnNames retrieves all of the column names for the table.
@@ -115,4 +142,91 @@ func (t *Table) AddColumns(columns ...Column) error {
 		}
 	}
 	return nil
+}
+
+func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
+	if len(t.typeName) == 0 {
+		return nil, ErrMissingTypeName
+	}
+
+	if len(t.name) == 0 {
+		return nil, ErrMissingTableName
+	}
+
+	if len(t.alias) == 0 {
+		return nil, ErrMissingTableAlias
+	}
+
+	if len(t.columnsByName) == 0 {
+		return nil, ErrMissingColumns
+	}
+
+	objType := reflect.TypeOf(obj)
+	objVal := reflect.ValueOf(obj)
+
+	// determine the type name for the pointer version of obj.
+	ptrTypeName := fmt.Sprintf("%T", obj)
+	if objType.Kind() != reflect.Ptr {
+		ptrTypeName = fmt.Sprintf("%T", reflect.New(objVal.Type()).Interface())
+	}
+
+	// determine the type name for the value version of obj.
+	valTypeName := fmt.Sprintf("%T", obj)
+	if objType.Kind() == reflect.Ptr {
+		valTypeName = fmt.Sprintf("%T", objVal.Elem().Interface())
+	}
+
+	// fail if the type name for the table doesn't match both the pointer and value type names.
+	if t.typeName != ptrTypeName && t.typeName != valTypeName {
+		return nil, ErrMismatchingTypeName
+	}
+
+	results := make(map[string]interface{})
+
+	for fieldName, column := range t.columnsByField {
+		if column.UsingStructFieldStrategy() {
+			oVal := objVal
+			if oVal.Kind() == reflect.Ptr {
+				oVal = oVal.Elem()
+			}
+			val := oVal.FieldByName(fieldName)
+			if !val.IsValid() {
+				continue
+			}
+
+			if val.Kind() == reflect.Ptr && !val.IsZero() {
+				if val.Elem().Kind() == reflect.Struct {
+					continue
+				}
+				val = val.Elem()
+			}
+
+			results[column.Name()] = val.Interface()
+		}
+
+		if column.UsingMethodStrategy() {
+			oType := objType
+			oVal := objVal
+			if oVal.Kind() != reflect.Ptr {
+				ptr := reflect.New(oVal.Type())
+				ptr.Elem().Set(oVal)
+				oVal = ptr
+			}
+			if oType.Kind() != reflect.Ptr {
+				oType = reflect.PointerTo(oType)
+			}
+			method, ok := oType.MethodByName(fieldName)
+			if !ok {
+				continue
+			}
+
+			valResults := method.Func.Call([]reflect.Value{oVal})
+			if len(valResults) == 0 || !valResults[0].IsValid() {
+				continue
+			}
+			results[column.Name()] = valResults[0].Interface()
+		}
+	}
+
+	return results, nil
 }
