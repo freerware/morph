@@ -1,10 +1,13 @@
 package morph
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
+	"text/template"
 )
 
 var (
@@ -110,6 +113,9 @@ func (t *Table) Columns() []Column {
 	for _, c := range t.columnsByName {
 		columns = append(columns, c)
 	}
+	sort.Slice(columns, func(i, j int) bool {
+		return columns[i].Name() < columns[j].Name()
+	})
 	return columns
 }
 
@@ -145,20 +151,8 @@ func (t *Table) AddColumns(columns ...Column) error {
 }
 
 func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
-	if len(t.typeName) == 0 {
-		return nil, ErrMissingTypeName
-	}
-
-	if len(t.name) == 0 {
-		return nil, ErrMissingTableName
-	}
-
-	if len(t.alias) == 0 {
-		return nil, ErrMissingTableAlias
-	}
-
-	if len(t.columnsByName) == 0 {
-		return nil, ErrMissingColumns
+	if err := t.validate(); err != nil {
+		return nil, err
 	}
 
 	objType := reflect.TypeOf(obj)
@@ -229,4 +223,62 @@ func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
 	}
 
 	return results, nil
+}
+
+func (t *Table) validate() error {
+	if len(t.typeName) == 0 {
+		return ErrMissingTypeName
+	}
+
+	if len(t.name) == 0 {
+		return ErrMissingTableName
+	}
+
+	if len(t.alias) == 0 {
+		return ErrMissingTableAlias
+	}
+
+	if len(t.columnsByName) == 0 {
+		return ErrMissingColumns
+	}
+
+	return nil
+}
+
+func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, error) {
+	if err := t.validate(); err != nil {
+		return "", err
+	}
+
+	qo := &QueryOptions{}
+	WithPlaceholder("?")(qo)
+
+	for _, option := range options {
+		option(qo)
+	}
+
+	data := struct {
+		Table   *Table
+		Options *QueryOptions
+	}{Table: t, Options: qo}
+
+	buf := new(bytes.Buffer)
+	err := tmpl.Execute(buf, data)
+	if err != nil {
+		return "", err
+	}
+
+	return buf.String(), nil
+}
+
+func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
+	return t.query(insertTmpl, options...)
+}
+
+func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
+	return t.query(updateTmpl, options...)
+}
+
+func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
+	return t.query(deleteTmpl, options...)
 }

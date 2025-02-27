@@ -14,11 +14,23 @@ type Column struct {
 	field         string
 	fieldStrategy FieldStrategy
 	fieldType     string
+	primaryKey    bool
 }
 
 // Name retrieves the name of the column.
 func (c *Column) Name() string {
 	return c.name
+}
+
+// PrimaryKey indicates if the column plays a role in the primary key
+// for a table. Tables with composite primary keys will have multiple
+// columns that indicate a true value for this method.
+func (c *Column) PrimaryKey() bool {
+	return c.primaryKey
+}
+
+func (c *Column) SetPrimaryKey(pKey bool) {
+	c.primaryKey = pKey
 }
 
 // SetName modifies the name of the column.

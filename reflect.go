@@ -144,6 +144,9 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 		var column Column
 		column.SetField(fieldName)
 		column.SetName(columnName)
+		if strings.ToLower(column.Name()) == "id" {
+			column.SetPrimaryKey(true)
+		}
 		column.SetFieldType(fieldType)
 		column.SetStrategy(FieldStrategyStructField)
 		columns = append(columns, column)
@@ -195,6 +198,9 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 		var column Column
 		column.SetField(fieldName)
 		column.SetName(columnName)
+		if strings.ToLower(column.Name()) == "id" {
+			column.SetPrimaryKey(true)
+		}
 		column.SetFieldType(fieldType)
 		column.SetStrategy(FieldStrategyMethod)
 		columns = append(columns, column)

@@ -89,6 +89,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -123,6 +124,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -157,6 +159,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -191,6 +194,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -225,6 +229,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -259,6 +264,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -293,6 +299,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -327,6 +334,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -361,6 +369,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("Id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -395,6 +404,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -429,6 +439,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -497,6 +508,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -525,6 +537,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -553,6 +566,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -581,6 +595,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -648,6 +663,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -682,6 +698,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -716,6 +733,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -750,6 +768,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -784,6 +803,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -818,6 +838,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -852,6 +873,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -886,6 +908,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -920,6 +943,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("Id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -954,6 +978,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -988,6 +1013,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -1056,6 +1082,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -1084,6 +1111,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -1112,6 +1140,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -1140,6 +1169,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("id")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 

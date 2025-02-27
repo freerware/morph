@@ -624,3 +624,84 @@ func (s *TableTestSuite) TestTable_Evaluate_MismatchingTypeName() {
 	// assert.
 	s.ErrorIs(err, morph.ErrMismatchingTypeName)
 }
+
+func (s *TableTestSuite) TestTable_InsertQuery() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.InsertQuery()
+
+	// assert.
+	s.NoError(err)
+	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
+}
+
+func (s *TableTestSuite) TestTable_UpdateQuery() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.UpdateQuery()
+
+	// assert.
+	s.NoError(err)
+	s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+}
+
+func (s *TableTestSuite) TestTable_DeleteQuery() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.DeleteQuery()
+
+	// assert.
+	s.NoError(err)
+	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
+}
