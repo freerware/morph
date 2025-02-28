@@ -251,7 +251,7 @@ func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, 
 	}
 
 	qo := &QueryOptions{}
-	WithPlaceholder("?")(qo)
+	WithPlaceholder("?", false)(qo)
 
 	for _, option := range options {
 		option(qo)

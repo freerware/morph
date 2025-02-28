@@ -652,6 +652,87 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
 }
 
+func (s *TableTestSuite) TestTable_InsertQuery_WithNamedParameters() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.InsertQuery(morph.WithNamedParameters())
+
+	// assert.
+	s.NoError(err)
+	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (:created_at, :id, :name);", query)
+}
+
+func (s *TableTestSuite) TestTable_InsertQuery_WithPlaceholder_NoOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.InsertQuery(morph.WithPlaceholder("$", false))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($, $, $);", query)
+}
+
+func (s *TableTestSuite) TestTable_InsertQuery_WithPlaceholder_WithOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.InsertQuery(morph.WithPlaceholder("$", true))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($1, $2, $3);", query)
+}
+
 func (s *TableTestSuite) TestTable_UpdateQuery() {
 	// arrange.
 	name := "test"
@@ -679,6 +760,87 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 	s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
 }
 
+func (s *TableTestSuite) TestTable_UpdateQuery_WithPlaceholder_NoOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.UpdateQuery(morph.WithPlaceholder("$", false))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("UPDATE test_models AS T SET T.created_at = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
+}
+
+func (s *TableTestSuite) TestTable_UpdateQuery_WithPlaceholder_WithOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.UpdateQuery(morph.WithPlaceholder("$", true))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.name = $2 WHERE 1=1 AND T.id = $3;", query)
+}
+
+func (s *TableTestSuite) TestTable_UpdateQuery_WithNamedParameters() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.UpdateQuery(morph.WithNamedParameters())
+
+	// assert.
+	s.NoError(err)
+	s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.name = :name WHERE 1=1 AND T.id = :id;", query)
+}
+
 func (s *TableTestSuite) TestTable_DeleteQuery() {
 	// arrange.
 	name := "test"
@@ -704,4 +866,85 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 	// assert.
 	s.NoError(err)
 	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
+}
+
+func (s *TableTestSuite) TestTable_DeleteQuery_WithPlaceholder_NoOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.DeleteQuery(morph.WithPlaceholder("$", false))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $;", query)
+}
+
+func (s *TableTestSuite) TestTable_DeleteQuery_WithPlaceholder_WithOrdering() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.DeleteQuery(morph.WithPlaceholder("$", true))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $1;", query)
+}
+
+func (s *TableTestSuite) TestTable_DeleteQuery_WithNamedParameters() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.DeleteQuery(morph.WithNamedParameters())
+
+	// assert.
+	s.NoError(err)
+	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = :id;", query)
 }
