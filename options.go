@@ -47,7 +47,7 @@ const (
 	DefaultTableAliasStrategy = UppercaseTableAliasStrategy
 )
 
-type Option func(*ReflectConfiguration)
+type ReflectOption func(*ReflectConfiguration)
 
 type ReflectConfiguration struct {
 	TableName              *string
@@ -171,21 +171,21 @@ func (c *ReflectConfiguration) Validate() bool {
 }
 
 var (
-	WithTableName = func(name string) Option {
+	WithTableName = func(name string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.TableName = &name
 			c.IsInferredTableName = false
 		}
 	}
 
-	WithTableAlias = func(alias string) Option {
+	WithTableAlias = func(alias string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.TableAlias = &alias
 			c.IsInferredTableAlias = false
 		}
 	}
 
-	WithInferredTableName = func(strategy TableNameStrategy, plural bool) Option {
+	WithInferredTableName = func(strategy TableNameStrategy, plural bool) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredTableName = true
 			c.TableNameStrategy = &strategy
@@ -193,7 +193,7 @@ var (
 		}
 	}
 
-	WithInferredTableAlias = func(strategy TableAliasStrategy, length int) Option {
+	WithInferredTableAlias = func(strategy TableAliasStrategy, length int) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if length < 1 {
 				length = 1
@@ -204,20 +204,20 @@ var (
 		}
 	}
 
-	WithInferredColumnNames = func(strategy ColumnNameStrategy) Option {
+	WithInferredColumnNames = func(strategy ColumnNameStrategy) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredColumnNames = true
 			c.ColumnNameStrategy = &strategy
 		}
 	}
 
-	WithTag = func(tag string) Option {
+	WithTag = func(tag string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.Tag = &tag
 		}
 	}
 
-	WithoutMethods = func(methods ...string) Option {
+	WithoutMethods = func(methods ...string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if c.MethodExclusions == nil {
 				c.MethodExclusions = []string{}
@@ -226,13 +226,13 @@ var (
 		}
 	}
 
-	WithoutMatchingMethods = func(pattern string) Option {
+	WithoutMatchingMethods = func(pattern string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.MethodExclusionPattern = &pattern
 		}
 	}
 
-	WithoutFields = func(fields ...string) Option {
+	WithoutFields = func(fields ...string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if c.FieldExclusions == nil {
 				c.FieldExclusions = []string{}
@@ -241,7 +241,7 @@ var (
 		}
 	}
 
-	WithoutMatchingFields = func(pattern string) Option {
+	WithoutMatchingFields = func(pattern string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.FieldExclusionPattern = &pattern
 		}

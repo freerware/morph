@@ -22,7 +22,7 @@ var (
 
 // Reflect observes the provided object and generates metadata from it
 // using the provided options.
-func Reflect(obj interface{}, options ...Option) (Table, error) {
+func Reflect(obj interface{}, options ...ReflectOption) (Table, error) {
 	t := reflect.TypeOf(obj)
 	val := reflect.ValueOf(obj)
 	if t.Kind() == reflect.Ptr {
