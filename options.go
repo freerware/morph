@@ -8,6 +8,7 @@ type TableNameStrategy int
 // TableAliasStrategy is an enumeration of the available table alias strategies.
 type TableAliasStrategy int
 
+// ColumnNameStrategy is an enumeration of the available column name strategies.
 type ColumnNameStrategy int
 
 const (
@@ -47,8 +48,11 @@ const (
 	DefaultTableAliasStrategy = UppercaseTableAliasStrategy
 )
 
+// ReflectOption is a function that configures the reflection configuration.
 type ReflectOption func(*ReflectConfiguration)
 
+// ReflectConfiguration is the configuration leveraged when constructing
+// tables via reflection.
 type ReflectConfiguration struct {
 	TableName              *string
 	TableAlias             *string
@@ -171,6 +175,8 @@ func (c *ReflectConfiguration) Validate() bool {
 }
 
 var (
+	// WithTableName specifies the table name, effectively overriding any
+	// table name inference.
 	WithTableName = func(name string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.TableName = &name
@@ -178,6 +184,8 @@ var (
 		}
 	}
 
+	// WithTableAlias specifies the table alias, effectively overriding any
+	// table alias inference.
 	WithTableAlias = func(alias string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.TableAlias = &alias
@@ -185,6 +193,8 @@ var (
 		}
 	}
 
+	// WithInferredTableName indicates tha the table name should be inferred
+	// based on the provided strategy and plurality.
 	WithInferredTableName = func(strategy TableNameStrategy, plural bool) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredTableName = true
@@ -193,10 +203,12 @@ var (
 		}
 	}
 
+	// WithInferredTableAlias indicates that the table alias should be inferred
+	// based on the provided strategy and length.
 	WithInferredTableAlias = func(strategy TableAliasStrategy, length int) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if length < 1 {
-				length = 1
+				length = DefaultTableAliasLength
 			}
 			c.IsInferredTableAlias = true
 			c.TableAliasStrategy = &strategy
@@ -204,6 +216,8 @@ var (
 		}
 	}
 
+	// WithInferredColumnNames indicates that the column names should be inferred
+	// based on the provided strategy.
 	WithInferredColumnNames = func(strategy ColumnNameStrategy) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredColumnNames = true
@@ -211,12 +225,14 @@ var (
 		}
 	}
 
+	// WithTag specifies the struct tag to use for field reflection.
 	WithTag = func(tag string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.Tag = &tag
 		}
 	}
 
+	// WithoutMethods specifies the methods by name to exclude from reflection.
 	WithoutMethods = func(methods ...string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if c.MethodExclusions == nil {
@@ -226,12 +242,15 @@ var (
 		}
 	}
 
+	// WithoutMatchingMethods specifies a regular expression used to match against
+	// method names, where matches are excluded from reflection.
 	WithoutMatchingMethods = func(pattern string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.MethodExclusionPattern = &pattern
 		}
 	}
 
+	// WithoutFields specifies the struct fields by name to exclude from reflection.
 	WithoutFields = func(fields ...string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if c.FieldExclusions == nil {
@@ -241,6 +260,8 @@ var (
 		}
 	}
 
+	// WithoutMatchingFields specifies a regular expression used to match against
+	// struct field names, where matches are excluded from reflection.
 	WithoutMatchingFields = func(pattern string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.FieldExclusionPattern = &pattern
