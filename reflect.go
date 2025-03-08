@@ -36,12 +36,9 @@ func Reflect(obj interface{}, options ...ReflectOption) (Table, error) {
 	pt := reflect.PointerTo(t)
 
 	configuration := ReflectConfiguration{}
-	WithInferredTableName(SnakeTableNameStrategy, true)(&configuration)
-	WithInferredTableAlias(UppercaseTableAliasStrategy, DefaultTableAliasLength)(&configuration)
-	WithInferredColumnNames(SnakeColumnNameStrategy)(&configuration)
-
-	for _, option := range options {
-		option(&configuration)
+	opts := append(DefaultReflectOptions, options...)
+	for _, opt := range opts {
+		opt(&configuration)
 	}
 
 	tableName := configuration.TableName
@@ -144,7 +141,7 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 		var column Column
 		column.SetField(fieldName)
 		column.SetName(columnName)
-		if strings.ToLower(column.Name()) == "id" {
+		if slices.Contains(c.PrimaryKeyColumns, columnName) {
 			column.SetPrimaryKey(true)
 		}
 		column.SetFieldType(fieldType)
@@ -198,7 +195,7 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 		var column Column
 		column.SetField(fieldName)
 		column.SetName(columnName)
-		if strings.ToLower(column.Name()) == "id" {
+		if slices.Contains(c.PrimaryKeyColumns, columnName) {
 			column.SetPrimaryKey(true)
 		}
 		column.SetFieldType(fieldType)

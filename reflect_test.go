@@ -369,7 +369,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				var idColumn morph.Column
 				idColumn.SetName("Id")
 				idColumn.SetField("ID")
-				idColumn.SetPrimaryKey(true)
+				idColumn.SetPrimaryKey(false)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -943,7 +943,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("Id")
 				idColumn.SetField("ID")
-				idColumn.SetPrimaryKey(true)
+				idColumn.SetPrimaryKey(false)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 
@@ -1048,6 +1048,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				var idColumn morph.Column
 				idColumn.SetName("identifier")
 				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(false)
 				idColumn.SetStrategy(morph.FieldStrategyStructField)
 				idColumn.SetFieldType("int")
 

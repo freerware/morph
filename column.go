@@ -7,6 +7,9 @@ const (
 	FieldStrategyMethod
 )
 
+// ColumnPredicate represents a condition used to match columns within find operations.
+type ColumnPredicate func(Column) bool
+
 // Column represents a mapping between an entity field
 // and a database column.
 type Column struct {

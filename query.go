@@ -5,16 +5,23 @@ import (
 	"text/template"
 )
 
+// DefaultPlaceholder represents the default placeholder value used for query generation.
+const DefaultPlaceholder = "?"
+
 // QueryOptions represents the options available for generating a query.
 type QueryOptions struct {
 	Placeholder string
 	Ordered     bool
 	Named       bool
 	OmitEmpty   bool
+	obj         interface{}
 }
 
 // QueryOption represents a function that modifies the query options.
 type QueryOption func(*QueryOptions)
+
+// DefaultQueryOptions represents the default query options used for query generation.
+var DefaultQueryOptions = []QueryOption{WithDefaultPlaceholder()}
 
 // WithPlaceholder sets the placeholder value and whether the parameter should have
 // a sequence number appended to it.
@@ -22,6 +29,13 @@ func WithPlaceholder(p string, o bool) QueryOption {
 	return func(q *QueryOptions) {
 		q.Placeholder = p
 		q.Ordered = o
+	}
+}
+
+func WithDefaultPlaceholder() QueryOption {
+	return func(q *QueryOptions) {
+		q.Placeholder = DefaultPlaceholder
+		q.Ordered = false
 	}
 }
 
@@ -33,9 +47,10 @@ func WithNamedParameters() QueryOption {
 }
 
 // WithoutEmptyValues indicates that columns with no value should be omitted from the query.
-func WithoutEmptyValues() QueryOption {
+func WithoutEmptyValues(obj interface{}) QueryOption {
 	return func(q *QueryOptions) {
 		q.OmitEmpty = true
+		q.obj = obj
 	}
 }
 
@@ -60,14 +75,17 @@ const updateSQL = `
   {{- $table := .Table -}}
   {{- $options := .Options -}}
   {{- $seq := 0 -}}
+  {{- $data := .Data -}}
+  {{- $nonPrimaryKeys := .NonPrimaryKeys -}}
   UPDATE {{$table.Name}} AS {{$table.Alias}} SET {{- if true}} {{end}}
-  {{- range $idx, $col := $table.Columns -}}
-    {{- if $col.PrimaryKey -}} {{continue}} {{- end -}}
+  {{- range $idx, $col := $nonPrimaryKeys -}}
+    {{- if omit $data $col.Name -}} {{continue}} {{- end -}}
+    {{- if ne $idx 0 -}} , {{end}}
     {{- $seq = add $seq 1 -}}
-    {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
+    {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
   {{- end }} WHERE 1=1
-  {{- range $idx, $col := $table.Columns -}}
-    {{- if $col.PrimaryKey }}{{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}{{- end -}}
+  {{- range $idx, $col := .PrimaryKeys -}}
+    {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
 // deleteSQL is the raw template contents used to generate a delete query.
@@ -76,8 +94,8 @@ const deleteSQL = `
   {{- $options := .Options -}}
   {{- $seq := 0 -}}
   DELETE FROM {{$table.Name}} WHERE 1=1
-  {{- range $idx, $col := $table.Columns -}}
-    {{- if $col.PrimaryKey }}{{- $seq = add $seq 1 }} AND {{.Name}} = {{param $col.Name $options $seq}}{{- end -}}
+  {{- range $idx, $col := .PrimaryKeys -}}
+    {{- $seq = add $seq 1 }} AND {{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
 var (
@@ -94,6 +112,15 @@ var (
 			}
 
 			return p
+		},
+		"omit": func(data EvaluationResult, columnName string) bool {
+			for _, col := range data.Empties() {
+				if col == columnName {
+					return true
+				}
+			}
+
+			return false
 		},
 		"sub": func(a, b int) int {
 			return a - b

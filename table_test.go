@@ -302,7 +302,7 @@ func (s *TableTestSuite) TestTable_EvaluateValue_PointersDereferenced() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"id":         1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -325,7 +325,7 @@ func (s *TableTestSuite) TestTable_EvaluateValue_WithTags() {
 	}
 
 	var err error
-	s.sut, err = morph.Reflect(m, morph.WithTag("db"))
+	s.sut, err = morph.Reflect(m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
 	if err != nil {
 		s.FailNow("unable to reflect in test", err)
 	}
@@ -336,7 +336,7 @@ func (s *TableTestSuite) TestTable_EvaluateValue_WithTags() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"identifier": 1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -364,9 +364,7 @@ func (s *TableTestSuite) TestTable_EvaluateValue_NilsPreserved() {
 
 	// assert.
 	s.NoError(err)
-
-	var description *string
-	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
+	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
 }
 
 func (s *TableTestSuite) TestTable_EvaluatePointer_PointersDereferenced() {
@@ -394,7 +392,7 @@ func (s *TableTestSuite) TestTable_EvaluatePointer_PointersDereferenced() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"id":         1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -417,7 +415,7 @@ func (s *TableTestSuite) TestTable_EvaluatePointer_WithTags() {
 	}
 
 	var err error
-	s.sut, err = morph.Reflect(&m, morph.WithTag("db"))
+	s.sut, err = morph.Reflect(&m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
 	if err != nil {
 		s.FailNow("unable to reflect in test", err)
 	}
@@ -428,7 +426,7 @@ func (s *TableTestSuite) TestTable_EvaluatePointer_WithTags() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"identifier": 1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -456,9 +454,7 @@ func (s *TableTestSuite) TestTable_EvaluatePointer_NilsPreserved() {
 
 	// assert.
 	s.NoError(err)
-
-	var description *string
-	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
+	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
 }
 
 func (s *TableTestSuite) TestTable_EvaluateMismatched_PointersDereferenced() {
@@ -486,7 +482,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched_PointersDereferenced() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"id":         1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -509,7 +505,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched_WithTags() {
 	}
 
 	var err error
-	s.sut, err = morph.Reflect(&m, morph.WithTag("db"))
+	s.sut, err = morph.Reflect(&m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
 	if err != nil {
 		s.FailNow("unable to reflect in test", err)
 	}
@@ -520,7 +516,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched_WithTags() {
 	// assert.
 	s.NoError(err)
 	s.Equal(
-		map[string]interface{}{
+		morph.EvaluationResult{
 			"identifier": 1,
 			"name":       name,
 			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
@@ -548,32 +544,17 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched_NilsPreserved() {
 
 	// assert.
 	s.NoError(err)
-
-	var description *string
-	s.Equal(map[string]interface{}{"id": 2, "title": "another", "description": description}, result)
-}
-
-func (s *TableTestSuite) TestTable_Evaluate_MissingTypeName() {
-	// arrange.
-	s.sut.SetTypeName("")
-	s.sut.SetAlias("U")
-	s.sut.SetName("users")
-
-	// action.
-	_, err := s.sut.Evaluate(struct{}{})
-
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingTypeName)
+	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
 }
 
 func (s *TableTestSuite) TestTable_Evaluate_MissingTableName() {
 	// arrange.
-	s.sut.SetTypeName("example.User")
-	s.sut.SetAlias("U")
+	s.sut.SetType(TestModel{})
+	s.sut.SetAlias("T")
 	s.sut.SetName("")
 
 	// action.
-	_, err := s.sut.Evaluate(struct{}{})
+	_, err := s.sut.Evaluate(TestModel{})
 
 	// assert.
 	s.ErrorIs(err, morph.ErrMissingTableName)
@@ -581,12 +562,12 @@ func (s *TableTestSuite) TestTable_Evaluate_MissingTableName() {
 
 func (s *TableTestSuite) TestTable_Evaluate_MissingTableAlias() {
 	// arrange.
-	s.sut.SetTypeName("example.User")
+	s.sut.SetType(TestModel{})
 	s.sut.SetAlias("")
-	s.sut.SetName("users")
+	s.sut.SetName("test_models")
 
 	// action.
-	_, err := s.sut.Evaluate(struct{}{})
+	_, err := s.sut.Evaluate(TestModel{})
 
 	// assert.
 	s.ErrorIs(err, morph.ErrMissingTableAlias)
@@ -594,12 +575,12 @@ func (s *TableTestSuite) TestTable_Evaluate_MissingTableAlias() {
 
 func (s *TableTestSuite) TestTable_Evaluate_MissingColumns() {
 	// arrange.
-	s.sut.SetTypeName("example.User")
-	s.sut.SetAlias("U")
-	s.sut.SetName("users")
+	s.sut.SetType(TestModel{})
+	s.sut.SetAlias("T")
+	s.sut.SetName("test_models")
 
 	// action.
-	_, err := s.sut.Evaluate(struct{}{})
+	_, err := s.sut.Evaluate(TestModel{})
 
 	// assert.
 	s.ErrorIs(err, morph.ErrMissingColumns)
@@ -607,13 +588,13 @@ func (s *TableTestSuite) TestTable_Evaluate_MissingColumns() {
 
 func (s *TableTestSuite) TestTable_Evaluate_MismatchingTypeName() {
 	// arrange.
-	s.sut.SetTypeName("example.User")
-	s.sut.SetAlias("U")
-	s.sut.SetName("users")
+	s.sut.SetType(TestModel{})
+	s.sut.SetAlias("T")
+	s.sut.SetName("test_models")
 
 	column := morph.Column{}
-	column.SetField("Username")
-	column.SetName("username")
+	column.SetField("Name")
+	column.SetName("name")
 	column.SetStrategy(morph.FieldStrategyStructField)
 
 	s.sut.AddColumns(column)
@@ -758,6 +739,32 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 	// assert.
 	s.NoError(err)
 	s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+}
+
+func (s *TableTestSuite) TestTable_UpdateQuery_WithoutEmptyValues() {
+	// arrange.
+	m := TestModel{
+		ID:   1,
+		Name: nil,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	query, err := s.sut.UpdateQuery(morph.WithoutEmptyValues(&m))
+
+	// assert.
+	s.NoError(err)
+	s.Equal("UPDATE test_models AS T SET T.created_at = ? WHERE 1=1 AND T.id = ?;", query)
 }
 
 func (s *TableTestSuite) TestTable_UpdateQuery_WithPlaceholder_NoOrdering() {

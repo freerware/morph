@@ -46,10 +46,23 @@ const (
 
 	// DefaultTableAliasStrategy is the default table alias strategy.
 	DefaultTableAliasStrategy = UppercaseTableAliasStrategy
+
+	// DefaultColumnNameStrategy is the default column name strategy.
+	DefaultColumnNameStrategy = SnakeColumnNameStrategy
 )
 
 // ReflectOption is a function that configures the reflection configuration.
 type ReflectOption func(*ReflectConfiguration)
+
+var (
+	// DefaultReflectOptions represents the default reflection options used for reflection.
+	DefaultReflectOptions = []ReflectOption{
+		WithInferredTableName(DefaultTableNameStrategy, true),
+		WithInferredTableAlias(DefaultTableAliasStrategy, DefaultTableAliasLength),
+		WithInferredColumnNames(DefaultColumnNameStrategy),
+		WithPrimaryKeyColumn("id"),
+	}
+)
 
 // ReflectConfiguration is the configuration leveraged when constructing
 // tables via reflection.
@@ -69,6 +82,7 @@ type ReflectConfiguration struct {
 	FieldExclusionPattern  *string
 	IsTableNamePlural      bool
 	TableAliasLength       *int
+	PrimaryKeyColumns      []string
 }
 
 // HasTableName indicates if the table name is set.
@@ -154,24 +168,6 @@ func (c *ReflectConfiguration) PluralTableName() bool {
 // HasTableAliasLength indicates if the table alias length is set.
 func (c *ReflectConfiguration) HasTableAliasLength() bool {
 	return c.TableAliasLength != nil
-}
-
-// Validate validates the reflect configuration.
-func (c *ReflectConfiguration) Validate() bool {
-	required := []bool{
-		c.HasTableName(),
-		c.HasTableNameStrategy(),
-		c.HasTableAliasStrategy(),
-		c.HasTableAliasLength(),
-	}
-
-	for _, v := range required {
-		if !v {
-			return false
-		}
-	}
-
-	return true
 }
 
 var (
@@ -265,6 +261,28 @@ var (
 	WithoutMatchingFields = func(pattern string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.FieldExclusionPattern = &pattern
+		}
+	}
+
+	// WithPrimaryKeyColumn specifies the name of the column that acts as
+	// the primary key.
+	WithPrimaryKeyColumn = func(name string) ReflectOption {
+		return func(c *ReflectConfiguration) {
+			if c.PrimaryKeyColumns == nil {
+				c.PrimaryKeyColumns = []string{}
+			}
+			c.PrimaryKeyColumns = []string{name}
+		}
+	}
+
+	// WithPrimaryKeyColumns specifies the names of the column that acts together as
+	// the primary key.
+	WithPrimaryKeyColumns = func(names []string) ReflectOption {
+		return func(c *ReflectConfiguration) {
+			if c.PrimaryKeyColumns == nil {
+				c.PrimaryKeyColumns = []string{}
+			}
+			copy(c.PrimaryKeyColumns, names)
 		}
 	}
 )

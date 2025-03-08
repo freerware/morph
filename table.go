@@ -30,7 +30,35 @@ var (
 	// ErrMismatchingTypeName represents an error encountered when evaluation is attempted but the
 	// table type name does not match the type name of the object being evaluated.
 	ErrMismatchingTypeName = errors.New("morph: must have matching type names to evaluate")
+
+	// ErrMissingPrimaryKey represents an error encountered when a table does not have any primary key columns.
+	ErrMissingPrimaryKey = errors.New("morph: table must have at least one primary key column")
+
+	// ErrMissingNonPrimaryKey represents an error encountered when a table does not have any non-primary key columns.
+	ErrMissingNonPrimaryKey = errors.New("morph: table must have at least one non-primary key column")
 )
+
+type EvaluationResult map[string]interface{}
+
+func (r EvaluationResult) Empties() []string {
+	var empties []string
+	for key, val := range r {
+		if val == nil {
+			empties = append(empties, key)
+		}
+	}
+	return empties
+}
+
+func (r EvaluationResult) NonEmpties() []string {
+	var nonEmpties []string
+	for key, val := range r {
+		if val != nil {
+			nonEmpties = append(nonEmpties, key)
+		}
+	}
+	return nonEmpties
+}
 
 // Table represents a mapping between an entity and a database table.
 type Table struct {
@@ -78,11 +106,11 @@ func (t *Table) SetAlias(alias string) {
 
 // ColumnNames retrieves all of the column names for the table.
 func (t *Table) ColumnNames() []string {
-	var columnNames []string
-	for name := range t.columnsByName {
-		columnNames = append(columnNames, name)
+	var names []string
+	for _, col := range t.Columns() {
+		names = append(names, col.Name())
 	}
-	return columnNames
+	return names
 }
 
 // ColumnName retrieves the column name associated to the provide field name.
@@ -108,15 +136,28 @@ func (t *Table) FieldName(name string) (string, error) {
 }
 
 // Columns retrieves all of the columns for the table.
-func (t *Table) Columns() []Column {
-	var columns []Column
+func (t *Table) Columns() (columns []Column) {
+	if t.columnsByName == nil {
+		t.columnsByName = make(map[string]Column)
+	}
 	for _, c := range t.columnsByName {
 		columns = append(columns, c)
 	}
 	sort.Slice(columns, func(i, j int) bool {
 		return columns[i].Name() < columns[j].Name()
 	})
-	return columns
+	return
+}
+
+// FindColumn retrieves the columns that matches the provided predicate.
+func (t Table) FindColumns(p ColumnPredicate) []Column {
+	cols := []Column{}
+	for _, col := range t.Columns() {
+		if p(col) {
+			cols = append(cols, col)
+		}
+	}
+	return cols
 }
 
 // AddColumn adds a column to the table.
@@ -150,11 +191,10 @@ func (t *Table) AddColumns(columns ...Column) error {
 	return nil
 }
 
-func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
-	if err := t.validate(); err != nil {
-		return nil, err
-	}
-
+// Evaluate applies the table to the provided object to produce a result
+// containing the column names and their respective values. The result
+// can then be subsequently used to execute queries.
+func (t *Table) Evaluate(obj interface{}) (EvaluationResult, error) {
 	objType := reflect.TypeOf(obj)
 	objVal := reflect.ValueOf(obj)
 
@@ -175,7 +215,11 @@ func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
 		return nil, ErrMismatchingTypeName
 	}
 
-	results := make(map[string]interface{})
+	if err := t.validate(); err != nil {
+		return nil, err
+	}
+
+	results := make(EvaluationResult)
 
 	for fieldName, column := range t.columnsByField {
 		if column.UsingStructFieldStrategy() {
@@ -193,6 +237,11 @@ func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
 					continue
 				}
 				val = val.Elem()
+			}
+
+			if val.Kind() == reflect.Ptr && (val.IsZero() || val.IsNil()) {
+				results[column.Name()] = nil
+				continue
 			}
 
 			results[column.Name()] = val.Interface()
@@ -218,6 +267,11 @@ func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
 			if len(valResults) == 0 || !valResults[0].IsValid() {
 				continue
 			}
+
+			if valResults[0].Kind() == reflect.Ptr && (valResults[0].IsZero() || valResults[0].IsNil()) {
+				results[column.Name()] = nil
+				continue
+			}
 			results[column.Name()] = valResults[0].Interface()
 		}
 	}
@@ -225,6 +279,16 @@ func (t *Table) Evaluate(obj interface{}) (map[string]interface{}, error) {
 	return results, nil
 }
 
+// MustEvaluate performs the same operation as Evaluate but panics if an error occurs.
+func (t *Table) MustEvaluate(obj interface{}) EvaluationResult {
+	results, err := t.Evaluate(obj)
+	if err != nil {
+		panic(err)
+	}
+	return results
+}
+
+// validate ensures that the table is properly configured.
 func (t *Table) validate() error {
 	if len(t.typeName) == 0 {
 		return ErrMissingTypeName
@@ -242,25 +306,48 @@ func (t *Table) validate() error {
 		return ErrMissingColumns
 	}
 
+	if len(t.FindColumns(func(c Column) bool { return c.PrimaryKey() })) == 0 {
+		return ErrMissingPrimaryKey
+	}
+
+	if len(t.FindColumns(func(c Column) bool { return !c.PrimaryKey() })) == 0 {
+		return ErrMissingNonPrimaryKey
+	}
+
 	return nil
 }
 
+// query generates a query for the table using the provided template and options.
 func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, error) {
 	if err := t.validate(); err != nil {
 		return "", err
 	}
 
 	qo := &QueryOptions{}
-	WithPlaceholder("?", false)(qo)
-
-	for _, option := range options {
-		option(qo)
+	opts := append(DefaultQueryOptions, options...)
+	for _, opt := range opts {
+		opt(qo)
 	}
 
 	data := struct {
-		Table   *Table
-		Options *QueryOptions
-	}{Table: t, Options: qo}
+		Table          *Table
+		PrimaryKeys    []Column
+		NonPrimaryKeys []Column
+		Options        *QueryOptions
+		Data           EvaluationResult
+	}{
+		Table:          t,
+		Options:        qo,
+		PrimaryKeys:    t.FindColumns(func(c Column) bool { return c.PrimaryKey() }),
+		NonPrimaryKeys: t.FindColumns(func(c Column) bool { return !c.PrimaryKey() }),
+	}
+
+	if qo.OmitEmpty && qo.obj != nil {
+		var err error
+		if data.Data, err = t.Evaluate(qo.obj); err != nil {
+			return "", err
+		}
+	}
 
 	buf := new(bytes.Buffer)
 	err := tmpl.Execute(buf, data)
