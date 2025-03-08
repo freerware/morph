@@ -1,5 +1,7 @@
 package morph
 
+import "strings"
+
 type FieldStrategy int
 
 const (
@@ -38,7 +40,7 @@ func (c *Column) SetPrimaryKey(pKey bool) {
 
 // SetName modifies the name of the column.
 func (c *Column) SetName(name string) {
-	c.name = name
+	c.name = strings.TrimSpace(name)
 }
 
 // Field retrieves the field name associated to the column.
@@ -48,7 +50,7 @@ func (c *Column) Field() string {
 
 // SetField modifies the field name associated to the column.
 func (c *Column) SetField(field string) {
-	c.field = field
+	c.field = strings.TrimSpace(field)
 }
 
 // Strategy retrieves the field strategy associated to the column.
@@ -78,5 +80,5 @@ func (c *Column) FieldType() string {
 
 // SetFieldType modifies the field type associated to the column.
 func (c *Column) SetFieldType(fieldType string) {
-	c.fieldType = fieldType
+	c.fieldType = strings.TrimSpace(fieldType)
 }

@@ -76,7 +76,7 @@ func (t *Table) SetType(entity interface{}) {
 
 // SetTypeName modifies the entity type name for the table.
 func (t *Table) SetTypeName(typeName string) {
-	t.typeName = strings.Trim(typeName, " ")
+	t.typeName = strings.TrimSpace(typeName)
 }
 
 // TypeName retrieves the type name of the entity associated to the table.
@@ -91,7 +91,7 @@ func (t *Table) Name() string {
 
 // SetName modifies the name of the table.
 func (t *Table) SetName(name string) {
-	t.name = strings.Trim(name, " ")
+	t.name = strings.TrimSpace(name)
 }
 
 // Alias retrieves the alias for the table.
@@ -101,7 +101,7 @@ func (t *Table) Alias() string {
 
 // SetAlias modifies the alias of the table.
 func (t *Table) SetAlias(alias string) {
-	t.alias = strings.Trim(alias, " ")
+	t.alias = strings.TrimSpace(alias)
 }
 
 // ColumnNames retrieves all of the column names for the table.
