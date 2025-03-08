@@ -271,14 +271,17 @@ func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, 
 	return buf.String(), nil
 }
 
+// InsertQuery generates an insert query for the table.
 func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
 	return t.query(insertTmpl, options...)
 }
 
+// UpdateQuery generates an update query for the table.
 func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 	return t.query(updateTmpl, options...)
 }
 
+// DeleteQuery generates a delete query for the table.
 func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 	return t.query(deleteTmpl, options...)
 }
