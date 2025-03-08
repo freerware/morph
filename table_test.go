@@ -311,6 +311,44 @@ func (s *TableTestSuite) TestTable_EvaluateValue_PointersDereferenced() {
 	)
 }
 
+func (s *TableTestSuite) TestTable_MustEvaluateValue() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result := s.sut.MustEvaluate(m)
+
+	// assert.
+	s.Equal(
+		morph.EvaluationResult{
+			"id":         1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_MustEvaluateValue_ErrorPanics() {
+	// action + assert.
+	s.PanicsWithError(morph.ErrMismatchingTypeName.Error(), func() { s.sut.MustEvaluate(TestModel{}) })
+}
+
 func (s *TableTestSuite) TestTable_EvaluateValue_WithTags() {
 	// arrange.
 	name := "test"
@@ -399,6 +437,44 @@ func (s *TableTestSuite) TestTable_EvaluatePointer_PointersDereferenced() {
 		},
 		result,
 	)
+}
+
+func (s *TableTestSuite) TestTable_MustEvaluatePointer_PointersDereferenced() {
+	// arrange.
+	name := "test"
+	m := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result := s.sut.MustEvaluate(&m)
+
+	// assert.
+	s.Equal(
+		morph.EvaluationResult{
+			"id":         1,
+			"name":       name,
+			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+		},
+		result,
+	)
+}
+
+func (s *TableTestSuite) TestTable_MustEvaluatePointer_ErrorPanics() {
+	// action + assert.
+	s.PanicsWithError(morph.ErrMismatchingTypeName.Error(), func() { s.sut.MustEvaluate(&TestModel{}) })
 }
 
 func (s *TableTestSuite) TestTable_EvaluatePointer_WithTags() {
@@ -606,6 +682,48 @@ func (s *TableTestSuite) TestTable_Evaluate_MismatchingTypeName() {
 	s.ErrorIs(err, morph.ErrMismatchingTypeName)
 }
 
+func (s *TableTestSuite) TestTable_Evaluate_MissingPrimaryKeys() {
+	// arrange.
+	s.sut.SetType(TestModel{})
+	s.sut.SetAlias("T")
+	s.sut.SetName("test_models")
+
+	column := morph.Column{}
+	column.SetField("Name")
+	column.SetPrimaryKey(false)
+	column.SetName("name")
+	column.SetStrategy(morph.FieldStrategyStructField)
+
+	s.sut.AddColumns(column)
+
+	// action.
+	_, err := s.sut.Evaluate(TestModel{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingPrimaryKey)
+}
+
+func (s *TableTestSuite) TestTable_Evaluate_MissingNonPrimaryKeys() {
+	// arrange.
+	s.sut.SetType(TestModel{})
+	s.sut.SetAlias("T")
+	s.sut.SetName("test_models")
+
+	column := morph.Column{}
+	column.SetField("ID")
+	column.SetPrimaryKey(true)
+	column.SetName("id")
+	column.SetStrategy(morph.FieldStrategyStructField)
+
+	s.sut.AddColumns(column)
+
+	// action.
+	_, err := s.sut.Evaluate(TestModel{})
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingNonPrimaryKey)
+}
+
 func (s *TableTestSuite) TestTable_InsertQuery() {
 	// arrange.
 	name := "test"
@@ -631,6 +749,15 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 	// assert.
 	s.NoError(err)
 	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
+}
+
+func (s *TableTestSuite) TestTable_InsertQuery_InvalidTable() {
+	// action.
+	query, err := s.sut.InsertQuery()
+
+	// assert.
+	s.Error(err)
+	s.Empty(query)
 }
 
 func (s *TableTestSuite) TestTable_InsertQuery_WithNamedParameters() {
@@ -739,6 +866,15 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 	// assert.
 	s.NoError(err)
 	s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+}
+
+func (s *TableTestSuite) TestTable_UpdateQuery_InvalidTable() {
+	// action.
+	query, err := s.sut.UpdateQuery()
+
+	// assert.
+	s.Error(err)
+	s.Empty(query)
 }
 
 func (s *TableTestSuite) TestTable_UpdateQuery_WithoutEmptyValues() {
@@ -873,6 +1009,15 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 	// assert.
 	s.NoError(err)
 	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
+}
+
+func (s *TableTestSuite) TestTable_DeleteQuery_InvalidTable() {
+	// action.
+	query, err := s.sut.DeleteQuery()
+
+	// assert.
+	s.Error(err)
+	s.Empty(query)
 }
 
 func (s *TableTestSuite) TestTable_DeleteQuery_WithPlaceholder_NoOrdering() {
