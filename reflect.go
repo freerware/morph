@@ -112,7 +112,7 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 		}
 
 		var tagValue string
-		if c.Tag != nil {
+		if c.HasTag() {
 			tagValue = field.Tag.Get(*c.Tag)
 		}
 
@@ -122,7 +122,7 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			}
 		}
 
-		if slices.Contains(c.FieldExclusions, field.Name) {
+		if c.HasFieldExclusions() && slices.Contains(c.FieldExclusions, field.Name) {
 			continue
 		}
 
@@ -178,7 +178,7 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 			}
 		}
 
-		if slices.Contains(c.MethodExclusions, fieldName) {
+		if c.HasMethodExclusions() && slices.Contains(c.MethodExclusions, fieldName) {
 			continue
 		}
 
