@@ -2,11 +2,11 @@ package morph
 
 import "strings"
 
-type FieldStrategy int
+type FieldStrategy string
 
 const (
-	FieldStrategyStructField FieldStrategy = iota
-	FieldStrategyMethod
+	FieldStrategyStructField FieldStrategy = "struct_field"
+	FieldStrategyMethod      FieldStrategy = "method"
 )
 
 // ColumnPredicate represents a condition used to match columns within find operations.
