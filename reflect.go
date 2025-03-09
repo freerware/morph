@@ -53,14 +53,14 @@ func Reflect(obj interface{}, options ...ReflectOption) (Table, error) {
 			tableName = &tName
 		}
 
-		if configuration.IsTableNamePlural {
+		if configuration.PluralTableName() {
 			tName := pluralize.NewClient().Plural(*tableName)
 			tableName = &tName
 		}
 	}
 
 	tableAlias := configuration.TableAlias
-	if configuration.IsInferredTableAlias {
+	if configuration.IsInferredTableAlias && configuration.HasTableAliasLength() {
 		if configuration.UppercaseTableAlias() {
 			a := strings.ToUpper((*tableName)[:*configuration.TableAliasLength])
 			tableAlias = &a
