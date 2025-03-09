@@ -21,7 +21,7 @@ func Load(path string) (Configuration, error) {
 	extension := path[strings.LastIndex(path, ".")+1:]
 	loader, ok := Loaders[extension]
 	if !ok {
-		return Configuration{}, fmt.Errorf("no loader for files with %q extension", extension)
+		return Configuration{}, fmt.Errorf("morph: no loader for files with %q extension", extension)
 	}
 	return loader.Load(path)
 }
