@@ -38,6 +38,36 @@ func (s *LoadTestSuite) TestLoadYAML() {
 			{
 				Name:  "user",
 				Alias: "U",
+				Columns: []morph.ColumnConfiguration{
+					{
+						Name:          "username",
+						Field:         "Username",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    true,
+					},
+					{
+						Name:          "password",
+						Field:         "Password",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+					{
+						Name:          "givenName",
+						Field:         "GivenName",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+					{
+						Name:          "surname",
+						Field:         "Surname",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+				},
 			},
 		},
 	}
@@ -48,7 +78,7 @@ func (s *LoadTestSuite) TestLoadYAML() {
 
 	// assert.
 	s.Require().NoError(err)
-	s.Len(actualConfig.Tables, len(actualConfig.Tables))
+	s.ElementsMatch(expectedConfig.Tables, actualConfig.Tables)
 }
 
 func (s *LoadTestSuite) TestLoadYAML_Error() {
@@ -73,6 +103,36 @@ func (s *LoadTestSuite) TestLoadJSON() {
 			{
 				Name:  "user",
 				Alias: "U",
+				Columns: []morph.ColumnConfiguration{
+					{
+						Name:          "username",
+						Field:         "Username",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    true,
+					},
+					{
+						Name:          "password",
+						Field:         "Password",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+					{
+						Name:          "givenName",
+						Field:         "GivenName",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+					{
+						Name:          "surname",
+						Field:         "Surname",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyMethod,
+						PrimaryKey:    false,
+					},
+				},
 			},
 		},
 	}
@@ -83,7 +143,7 @@ func (s *LoadTestSuite) TestLoadJSON() {
 
 	// assert.
 	s.Require().NoError(err)
-	s.Len(actualConfig.Tables, len(actualConfig.Tables))
+	s.ElementsMatch(expectedConfig.Tables, actualConfig.Tables)
 }
 
 func (s *LoadTestSuite) TestLoadJSON_Error() {

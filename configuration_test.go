@@ -1,8 +1,9 @@
-package morph
+package morph_test
 
 import (
 	"testing"
 
+	"github.com/freerware/morph"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -16,16 +17,19 @@ func TestConfigurationTestSuite(t *testing.T) {
 
 func (s *ConfigurationTestSuite) TestAsMetadata() {
 	// arrange.
-	config := Configuration{
-		Tables: []TableConfiguration{
+	config := morph.Configuration{
+		Tables: []morph.TableConfiguration{
 			{
 				TypeName: "example.User",
 				Name:     "user",
 				Alias:    "U",
-				Columns: []ColumnConfiguration{
+				Columns: []morph.ColumnConfiguration{
 					{
-						Name:  "username",
-						Field: "Username",
+						Name:          "username",
+						Field:         "Username",
+						FieldType:     "string",
+						FieldStrategy: morph.FieldStrategyStructField,
+						PrimaryKey:    true,
 					},
 				},
 			},
@@ -40,10 +44,11 @@ func (s *ConfigurationTestSuite) TestAsMetadata() {
 	s.Equal(config.Tables[0].TypeName, tables[0].TypeName())
 	s.Equal(config.Tables[0].Name, tables[0].Name())
 	s.Equal(config.Tables[0].Alias, tables[0].Alias())
-	s.Require().Len(
-		config.Tables[0].Columns, len(tables[0].Columns()))
-	s.Equal(
-		config.Tables[0].Columns[0].Name, tables[0].Columns()[0].Name())
-	s.Equal(
-		config.Tables[0].Columns[0].Field, tables[0].Columns()[0].Field())
+
+	s.Require().Len(config.Tables[0].Columns, len(tables[0].Columns()))
+	s.Equal(config.Tables[0].Columns[0].Name, tables[0].Columns()[0].Name())
+	s.Equal(config.Tables[0].Columns[0].Field, tables[0].Columns()[0].Field())
+	s.Equal(config.Tables[0].Columns[0].FieldType, tables[0].Columns()[0].FieldType())
+	s.True(tables[0].Columns()[0].UsingStructFieldStrategy())
+	s.Equal(config.Tables[0].Columns[0].PrimaryKey, tables[0].Columns()[0].PrimaryKey())
 }

@@ -18,6 +18,9 @@ func (c Configuration) AsMetadata() []Table {
 			var column Column
 			column.SetField(c.Field)
 			column.SetName(c.Name)
+			column.SetFieldType(c.FieldType)
+			column.SetStrategy(c.FieldStrategy)
+			column.SetPrimaryKey(c.PrimaryKey)
 			table.AddColumn(column)
 		}
 		tables = append(tables, table)
@@ -37,6 +40,9 @@ type TableConfiguration struct {
 // ColumnConfiguration represents the configuration used to construct
 // a single column mapping.
 type ColumnConfiguration struct {
-	Name  string `json:"name" yaml:"name"`
-	Field string `json:"field" yaml:"field"`
+	Name          string        `json:"name" yaml:"name"`
+	Field         string        `json:"field" yaml:"field"`
+	FieldType     string        `json:"fieldType" yaml:"fieldType"`
+	FieldStrategy FieldStrategy `json:"fieldStrategy" yaml:"fieldStrategy"`
+	PrimaryKey    bool          `json:"primaryKey" yaml:"primaryKey"`
 }
