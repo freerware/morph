@@ -282,7 +282,8 @@ var (
 			if c.PrimaryKeyColumns == nil {
 				c.PrimaryKeyColumns = []string{}
 			}
-			copy(c.PrimaryKeyColumns, names)
+			pks := append([]string{}, names...)
+			c.PrimaryKeyColumns = pks
 		}
 	}
 )
