@@ -3,38 +3,38 @@ package morph
 import "strings"
 
 // TableNameStrategy is an enumeration of the available table name strategies.
-type TableNameStrategy int
+type TableNameStrategy string
 
 // TableAliasStrategy is an enumeration of the available table alias strategies.
-type TableAliasStrategy int
+type TableAliasStrategy string
 
 // ColumnNameStrategy is an enumeration of the available column name strategies.
-type ColumnNameStrategy int
+type ColumnNameStrategy string
 
 const (
 
 	// SnakeTableNameStrategy is the snake case table name strategy.
-	SnakeTableNameStrategy TableNameStrategy = iota
+	SnakeTableNameStrategy TableNameStrategy = "snake"
 
 	// CamelTableNameStrategy is the camel case table name strategy.
-	CamelTableNameStrategy
+	CamelTableNameStrategy TableNameStrategy = "camel"
 )
 
 const (
 
 	// SnakeColumnNameStrategy is the snake case column name strategy.
-	SnakeColumnNameStrategy ColumnNameStrategy = iota
+	SnakeColumnNameStrategy ColumnNameStrategy = "snake"
 
 	// CamelColumnNameStrategy is the camel case table name strategy.
-	CamelColumnNameStrategy
+	CamelColumnNameStrategy ColumnNameStrategy = "camel"
 )
 
 const (
 	// LowercaseTableAliasStrategy is the lowercase table alias strategy.
-	LowercaseTableAliasStrategy TableAliasStrategy = iota
+	LowercaseTableAliasStrategy TableAliasStrategy = "lowercase"
 
 	// UppercaseTableAliasStrategy is the uppercase table alias strategy.
-	UppercaseTableAliasStrategy
+	UppercaseTableAliasStrategy TableAliasStrategy = "uppercase"
 )
 
 const (
