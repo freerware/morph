@@ -3,7 +3,7 @@ package morph
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"strings"
 
 	"gopkg.in/yaml.v2"
@@ -36,7 +36,7 @@ type JSONLoader struct{}
 // Load loads the configuration from the JSON file provided.
 func (l JSONLoader) Load(path string) (c Configuration, err error) {
 	var file []byte
-	if file, err = ioutil.ReadFile(path); err != nil {
+	if file, err = os.ReadFile(path); err != nil {
 		return
 	}
 	return c, json.Unmarshal(file, &c)
@@ -47,7 +47,7 @@ type YAMLLoader struct{}
 // Load loads the configuration from the YAML file provided.
 func (l YAMLLoader) Load(path string) (c Configuration, err error) {
 	var file []byte
-	if file, err = ioutil.ReadFile(path); err != nil {
+	if file, err = os.ReadFile(path); err != nil {
 		return
 	}
 	return c, yaml.Unmarshal(file, &c)
