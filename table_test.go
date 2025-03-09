@@ -1100,3 +1100,49 @@ func (s *TableTestSuite) TestTable_DeleteQuery_WithNamedParameters() {
 	s.NoError(err)
 	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = :id;", query)
 }
+
+func (s *TableTestSuite) TestTable_EvaluationResults_Empties() {
+	// arrange.
+	m := AnotherTestModel{
+		ID:          2,
+		Title:       "another",
+		Description: nil,
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Len(result.Empties(), 1)
+	s.Equal("description", result.Empties()[0])
+}
+
+func (s *TableTestSuite) TestTable_EvaluationResults_NonEmpties() {
+	// arrange.
+	m := AnotherTestModel{
+		ID:          2,
+		Title:       "another",
+		Description: nil,
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(m)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	result, err := s.sut.Evaluate(m)
+
+	// assert.
+	s.NoError(err)
+	s.Len(result.NonEmpties(), 2)
+	s.ElementsMatch(result.NonEmpties(), []string{"id", "title"})
+}
