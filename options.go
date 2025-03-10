@@ -18,26 +18,19 @@ const (
 
 	// CamelTableNameStrategy is the camel case table name strategy.
 	CamelTableNameStrategy TableNameStrategy = "camel"
-)
-
-const (
 
 	// SnakeColumnNameStrategy is the snake case column name strategy.
 	SnakeColumnNameStrategy ColumnNameStrategy = "snake"
 
 	// CamelColumnNameStrategy is the camel case table name strategy.
 	CamelColumnNameStrategy ColumnNameStrategy = "camel"
-)
 
-const (
-	// LowercaseTableAliasStrategy is the lowercase table alias strategy.
-	LowercaseTableAliasStrategy TableAliasStrategy = "lowercase"
+	// LowerTableAliasStrategy is the lowercase table alias strategy.
+	LowerTableAliasStrategy TableAliasStrategy = "lower"
 
-	// UppercaseTableAliasStrategy is the uppercase table alias strategy.
-	UppercaseTableAliasStrategy TableAliasStrategy = "uppercase"
-)
+	// UpperTableAliasStrategy is the uppercase table alias strategy.
+	UpperTableAliasStrategy TableAliasStrategy = "upper"
 
-const (
 	// DefaultTableAliasLength is the default table alias length.
 	DefaultTableAliasLength = 1
 
@@ -45,7 +38,7 @@ const (
 	DefaultTableNameStrategy = SnakeTableNameStrategy
 
 	// DefaultTableAliasStrategy is the default table alias strategy.
-	DefaultTableAliasStrategy = UppercaseTableAliasStrategy
+	DefaultTableAliasStrategy = UpperTableAliasStrategy
 
 	// DefaultColumnNameStrategy is the default column name strategy.
 	DefaultColumnNameStrategy = SnakeColumnNameStrategy
@@ -127,12 +120,12 @@ func (c *ReflectConfiguration) CamelCaseColumnName() bool {
 
 // LowercaseTableAlias indicates if the table alias strategy is lowercase.
 func (c *ReflectConfiguration) LowercaseTableAlias() bool {
-	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == LowercaseTableAliasStrategy
+	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == LowerTableAliasStrategy
 }
 
 // UppercaseTableAlias indicates if the table alias strategy is uppercase.
 func (c *ReflectConfiguration) UppercaseTableAlias() bool {
-	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == UppercaseTableAliasStrategy
+	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == UpperTableAliasStrategy
 }
 
 // HasTag indicates if the tag is set.

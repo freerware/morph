@@ -112,7 +112,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 		{
 			name:    "WithInferredTableAlias_Uppercase_SetUppercaseTableAlias",
 			obj:     s.obj,
-			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.UppercaseTableAliasStrategy, morph.DefaultTableAliasLength)},
+			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.UpperTableAliasStrategy, morph.DefaultTableAliasLength)},
 			expected: func() morph.Table {
 				t := morph.Table{}
 				t.SetType(s.obj)
@@ -147,7 +147,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 		{
 			name:    "WithInferredTableAlias_Lowercase_SetsLowercaseTableAlias",
 			obj:     s.obj,
-			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.LowercaseTableAliasStrategy, morph.DefaultTableAliasLength)},
+			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.LowerTableAliasStrategy, morph.DefaultTableAliasLength)},
 			expected: func() morph.Table {
 				t := morph.Table{}
 				t.SetType(s.obj)
@@ -686,7 +686,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 		{
 			name:    "WithInferredTableAlias_Uppercase_SetUppercaseTableAlias",
 			obj:     s.objPtr,
-			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.UppercaseTableAliasStrategy, morph.DefaultTableAliasLength)},
+			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.UpperTableAliasStrategy, morph.DefaultTableAliasLength)},
 			expected: func() morph.Table {
 				t := morph.Table{}
 				t.SetType(s.objPtr)
@@ -721,7 +721,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 		{
 			name:    "WithInferredTableAlias_Lowercase_SetsLowercaseTableAlias",
 			obj:     s.objPtr,
-			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.LowercaseTableAliasStrategy, morph.DefaultTableAliasLength)},
+			options: []morph.ReflectOption{morph.WithInferredTableAlias(morph.LowerTableAliasStrategy, morph.DefaultTableAliasLength)},
 			expected: func() morph.Table {
 				t := morph.Table{}
 				t.SetType(s.objPtr)
