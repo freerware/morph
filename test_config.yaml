@@ -1,14 +1,29 @@
 tables:
-    - name: user
-      alias: U
-      columns:
-          - name: uuid
-            field: UUID
-          - name: username
-            field: Username
-          - name: password 
-            field: Password
-          - name: givenName 
-            field: GivenName
-          - name: surname 
-            field: Surname
+  - name: user
+    alias: U
+    columns:
+      - name: uuid
+        field: UUID
+        fieldType: string
+        fieldStrategy: method
+        primaryKey: true
+      - name: username
+        field: Username
+        fieldType: string
+        fieldStrategy: method
+        primaryKey: false
+      - name: password
+        field: Password
+        fieldType: string
+        fieldStrategy: method
+        primaryKey: false
+      - name: givenName
+        field: GivenName
+        fieldType: string
+        fieldStrategy: method
+        primaryKey: false
+      - name: surname
+        field: Surname
+        fieldType: string
+        fieldStrategy: method
+        primaryKey: false

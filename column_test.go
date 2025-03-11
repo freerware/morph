@@ -66,3 +66,14 @@ func (s *ColumnTestSuite) TestColumn_SetField() {
 	// assert.
 	s.Equal(expectedField, s.sut.Field())
 }
+
+func (s *ColumnTestSuite) TestColumn_SetFieldType() {
+	// arrange.
+	expectedFieldType := "*string"
+
+	// action.
+	s.sut.SetFieldType(expectedFieldType)
+
+	// assert.
+	s.Equal(expectedFieldType, s.sut.FieldType())
+}
