@@ -2,46 +2,33 @@ package morph
 
 import "strings"
 
-// TableNameStrategy is an enumeration of the available table name strategies.
-type TableNameStrategy string
-
-// TableAliasStrategy is an enumeration of the available table alias strategies.
-type TableAliasStrategy string
-
-// ColumnNameStrategy is an enumeration of the available column name strategies.
-type ColumnNameStrategy string
+// CaseStrategy is an enumeration of the available case strategies.
+type CaseStrategy string
 
 const (
+	// SnakeCaseStrategy is the snake case strategy.
+	SnakeCaseStrategy CaseStrategy = "snake"
 
-	// SnakeTableNameStrategy is the snake case table name strategy.
-	SnakeTableNameStrategy TableNameStrategy = "snake"
+	// CamelCaseStrategy is the camel case strategy.
+	CamelCaseStrategy CaseStrategy = "camel"
 
-	// CamelTableNameStrategy is the camel case table name strategy.
-	CamelTableNameStrategy TableNameStrategy = "camel"
+	// LowerCaseStrategy is the lowercase strategy.
+	LowerCaseStrategy CaseStrategy = "lower"
 
-	// SnakeColumnNameStrategy is the snake case column name strategy.
-	SnakeColumnNameStrategy ColumnNameStrategy = "snake"
-
-	// CamelColumnNameStrategy is the camel case table name strategy.
-	CamelColumnNameStrategy ColumnNameStrategy = "camel"
-
-	// LowerTableAliasStrategy is the lowercase table alias strategy.
-	LowerTableAliasStrategy TableAliasStrategy = "lower"
-
-	// UpperTableAliasStrategy is the uppercase table alias strategy.
-	UpperTableAliasStrategy TableAliasStrategy = "upper"
+	// UpperCaseStrategy is the uppercase strategy.
+	UpperCaseStrategy CaseStrategy = "upper"
 
 	// DefaultTableAliasLength is the default table alias length.
 	DefaultTableAliasLength = 1
 
 	// DefaultTableNameStrategy is the default table name strategy.
-	DefaultTableNameStrategy = SnakeTableNameStrategy
+	DefaultTableNameStrategy = SnakeCaseStrategy
 
 	// DefaultTableAliasStrategy is the default table alias strategy.
-	DefaultTableAliasStrategy = UpperTableAliasStrategy
+	DefaultTableAliasStrategy = UpperCaseStrategy
 
 	// DefaultColumnNameStrategy is the default column name strategy.
-	DefaultColumnNameStrategy = SnakeColumnNameStrategy
+	DefaultColumnNameStrategy = SnakeCaseStrategy
 )
 
 // ReflectOption is a function that configures the reflection configuration.
@@ -65,9 +52,9 @@ type ReflectConfiguration struct {
 	IsInferredTableName    bool
 	IsInferredTableAlias   bool
 	IsInferredColumnNames  bool
-	TableNameStrategy      *TableNameStrategy
-	TableAliasStrategy     *TableAliasStrategy
-	ColumnNameStrategy     *ColumnNameStrategy
+	TableNameStrategy      *CaseStrategy
+	TableAliasStrategy     *CaseStrategy
+	ColumnNameStrategy     *CaseStrategy
 	Tag                    *string
 	MethodExclusions       []string
 	FieldExclusions        []string
@@ -100,32 +87,32 @@ func (c *ReflectConfiguration) HasColumnNameStrategy() bool {
 
 // SnakeCaseTableName indicates if the table name strategy is snake case.
 func (c *ReflectConfiguration) SnakeCaseTableName() bool {
-	return c.HasTableNameStrategy() && *c.TableNameStrategy == SnakeTableNameStrategy
+	return c.HasTableNameStrategy() && *c.TableNameStrategy == SnakeCaseStrategy
 }
 
 // CamelCaseTableName indicates if the table name strategy is camel case.
 func (c *ReflectConfiguration) CamelCaseTableName() bool {
-	return c.HasTableNameStrategy() && *c.TableNameStrategy == CamelTableNameStrategy
+	return c.HasTableNameStrategy() && *c.TableNameStrategy == CamelCaseStrategy
 }
 
 // SnakeCaseColumnName indicates if the column name strategy is snake case.
 func (c *ReflectConfiguration) SnakeCaseColumnName() bool {
-	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == SnakeColumnNameStrategy
+	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == SnakeCaseStrategy
 }
 
 // CamelCaseColumnName indicates if the column name strategy is camel case.
 func (c *ReflectConfiguration) CamelCaseColumnName() bool {
-	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == CamelColumnNameStrategy
+	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == CamelCaseStrategy
 }
 
 // LowercaseTableAlias indicates if the table alias strategy is lowercase.
 func (c *ReflectConfiguration) LowercaseTableAlias() bool {
-	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == LowerTableAliasStrategy
+	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == LowerCaseStrategy
 }
 
 // UppercaseTableAlias indicates if the table alias strategy is uppercase.
 func (c *ReflectConfiguration) UppercaseTableAlias() bool {
-	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == UpperTableAliasStrategy
+	return c.HasTableAliasStrategy() && *c.TableAliasStrategy == UpperCaseStrategy
 }
 
 // HasTag indicates if the tag is set.
@@ -184,7 +171,7 @@ var (
 
 	// WithInferredTableName indicates tha the table name should be inferred
 	// based on the provided strategy and plurality.
-	WithInferredTableName = func(strategy TableNameStrategy, plural bool) ReflectOption {
+	WithInferredTableName = func(strategy CaseStrategy, plural bool) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredTableName = true
 			c.TableNameStrategy = &strategy
@@ -194,7 +181,7 @@ var (
 
 	// WithInferredTableAlias indicates that the table alias should be inferred
 	// based on the provided strategy and length.
-	WithInferredTableAlias = func(strategy TableAliasStrategy, length int) ReflectOption {
+	WithInferredTableAlias = func(strategy CaseStrategy, length int) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if length < 1 {
 				length = DefaultTableAliasLength
@@ -207,7 +194,7 @@ var (
 
 	// WithInferredColumnNames indicates that the column names should be inferred
 	// based on the provided strategy.
-	WithInferredColumnNames = func(strategy ColumnNameStrategy) ReflectOption {
+	WithInferredColumnNames = func(strategy CaseStrategy) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			c.IsInferredColumnNames = true
 			c.ColumnNameStrategy = &strategy
