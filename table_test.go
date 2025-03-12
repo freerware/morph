@@ -23,6 +23,10 @@ func (s *TableTestSuite) SetupTest() {
 	s.sut = morph.Table{}
 }
 
+func (s *TableTestSuite) SetupSubTest() {
+	s.sut = morph.Table{}
+}
+
 func (s *TableTestSuite) TestTable_TypeName() {
 	// arrange.
 	expectedTypeName := "example.User"
@@ -208,419 +212,575 @@ func (s *TableTestSuite) TestTable_Columns() {
 }
 
 func (s *TableTestSuite) TestTable_AddColumn() {
-	// arrange.
-	field := "Username"
-	cName := "username"
-	column := morph.Column{}
-	column.SetField(field)
-	column.SetName(cName)
+	tests := []struct {
+		name         string
+		preparations func() morph.Column
+		assertions   func(err error)
+	}{
+		{
+			name: "NotPreviouslyAdded",
+			preparations: func() morph.Column {
+				field := "Username"
+				cName := "username"
+				column := morph.Column{}
+				column.SetField(field)
+				column.SetName(cName)
+				return column
+			},
+			assertions: func(err error) {
+				s.NoError(err)
+			},
+		},
+		{
+			name: "PreviouslyAdded",
+			preparations: func() morph.Column {
+				field := "Username"
+				cName := "username"
+				column := morph.Column{}
+				column.SetField(field)
+				column.SetName(cName)
+				columns := []morph.Column{column}
+				s.Require().NoError(s.sut.AddColumns(columns...))
 
-	// action.
-	err := s.sut.AddColumn(column)
+				duplicateColumn := morph.Column{}
+				duplicateColumn.SetField(field)
+				duplicateColumn.SetName(cName)
+				return duplicateColumn
+			},
+			assertions: func(err error) {
+				s.Error(err)
+			},
+		},
+	}
 
-	// assert.
-	s.NoError(err)
-}
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			column := test.preparations()
 
-func (s *TableTestSuite) TestTable_AddColumn_AlreadyExists() {
-	// arrange.
-	field := "Username"
-	cName := "username"
-	column := morph.Column{}
-	column.SetField(field)
-	column.SetName(cName)
-	duplicateColumn := morph.Column{}
-	duplicateColumn.SetField(field)
-	duplicateColumn.SetName(cName)
-	expectedColumns := []morph.Column{column}
-	s.Require().NoError(s.sut.AddColumns(expectedColumns...))
+			// action.
+			err := s.sut.AddColumn(column)
 
-	// action.
-	err := s.sut.AddColumn(duplicateColumn)
-
-	// assert.
-	s.Error(err)
+			// assert.
+			test.assertions(err)
+		})
+	}
 }
 
 func (s *TableTestSuite) TestTable_AddColumns() {
-	// arrange.
-	field := "Username"
-	cName := "username"
-	column := morph.Column{}
-	column.SetField(field)
-	column.SetName(cName)
-	expectedColumns := []morph.Column{column}
+	tests := []struct {
+		name         string
+		preparations func() []morph.Column
+		assertions   func(err error)
+	}{
+		{
+			name: "NotPreviouslyAdded",
+			preparations: func() []morph.Column {
+				field := "Username"
+				cName := "username"
+				column := morph.Column{}
+				column.SetField(field)
+				column.SetName(cName)
+				return []morph.Column{column}
+			},
+			assertions: func(err error) {
+				s.NoError(err)
+			},
+		},
+		{
+			name: "PreviouslyAdded",
+			preparations: func() []morph.Column {
+				field := "Username"
+				cName := "username"
+				column := morph.Column{}
+				column.SetField(field)
+				column.SetName(cName)
 
-	// action.
-	err := s.sut.AddColumns(expectedColumns...)
+				duplicateColumn := morph.Column{}
+				duplicateColumn.SetField(field)
+				duplicateColumn.SetName(cName)
 
-	// assert.
-	s.Require().NoError(err)
-}
-
-func (s *TableTestSuite) TestTable_AddColumns_AlreadyExists() {
-	// arrange.
-	field := "Username"
-	cName := "username"
-	column := morph.Column{}
-	column.SetField(field)
-	column.SetName(cName)
-	duplicateColumn := morph.Column{}
-	duplicateColumn.SetField(field)
-	duplicateColumn.SetName(cName)
-	expectedColumns := []morph.Column{column, duplicateColumn}
-
-	// action.
-	err := s.sut.AddColumns(expectedColumns...)
-
-	// assert.
-	s.Error(err)
-}
-
-func (s *TableTestSuite) TestTable_EvaluateValue_PointersDereferenced() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+				columns := []morph.Column{column, duplicateColumn}
+				return columns
+			},
+			assertions: func(err error) {
+				s.Error(err)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			columns := test.preparations()
+
+			// action.
+			err := s.sut.AddColumns(columns...)
+
+			// assert.
+			test.assertions(err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_EvaluateWithValue() {
+	tests := []struct {
+		name           string
+		reflectOptions []morph.ReflectOption
+		preparations   func() TestModel
+		assertions     func(result morph.EvaluationResult, err error)
+	}{
+		{
+			name:           "PointersDereferenced",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+		{
+			name:           "WithTags",
+			reflectOptions: []morph.ReflectOption{morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier")},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"identifier": 1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+		{
+			name:           "NilsPreserved",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				return TestModel{
+					ID:   1,
+					Name: nil,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       nil,
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
 	}
 
-	// action.
-	result, err := s.sut.Evaluate(m)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
 
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"id":         1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+			var err error
+			s.sut, err = morph.Reflect(model, test.reflectOptions...)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			result, err := s.sut.Evaluate(model)
+
+			// assert.
+			test.assertions(result, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
+	tests := []struct {
+		name           string
+		reflectOptions []morph.ReflectOption
+		preparations   func() TestModel
+		assertions     func(result morph.EvaluationResult, err error)
+	}{
+		{
+			name:           "PointersDereferenced",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
 		},
-		result,
-	)
+		{
+			name:           "WithTags",
+			reflectOptions: []morph.ReflectOption{morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier")},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"identifier": 1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+		{
+			name:           "NilsPreserved",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				return TestModel{
+					ID:   1,
+					Name: nil,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       nil,
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model, test.reflectOptions...)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			result, err := s.sut.Evaluate(&model)
+
+			// assert.
+			test.assertions(result, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_EvaluateMismatched() {
+	tests := []struct {
+		name           string
+		reflectOptions []morph.ReflectOption
+		preparations   func() TestModel
+		assertions     func(result morph.EvaluationResult, err error)
+	}{
+		{
+			name:           "PointersDereferenced",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+		{
+			name:           "WithTags",
+			reflectOptions: []morph.ReflectOption{morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier")},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"identifier": 1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+		{
+			name:           "NilsPreserved",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				return TestModel{
+					ID:   1,
+					Name: nil,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult, err error) {
+				s.NoError(err)
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       nil,
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model, test.reflectOptions...)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			result, err := s.sut.Evaluate(model)
+
+			// assert.
+			test.assertions(result, err)
+		})
+	}
 }
 
 func (s *TableTestSuite) TestTable_MustEvaluateValue() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+	tests := []struct {
+		name           string
+		reflectOptions []morph.ReflectOption
+		preparations   func() TestModel
+		assertions     func(result morph.EvaluationResult)
+		panics         bool
+		err            error
+	}{
+		{
+			name:   "ErrorPanics",
+			panics: true,
+			err:    morph.ErrMismatchingTypeName,
+		},
+		{
+			name:           "PointersDereferenced",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult) {
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			if test.panics {
+				s.PanicsWithError(test.err.Error(), func() { s.sut.MustEvaluate(TestModel{}) })
+				return
+			}
+
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(model, test.reflectOptions...)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			result := s.sut.MustEvaluate(model)
+
+			// assert.
+			test.assertions(result)
+		})
 	}
-
-	// action.
-	result := s.sut.MustEvaluate(m)
-
-	// assert.
-	s.Equal(
-		morph.EvaluationResult{
-			"id":         1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
 }
-
-func (s *TableTestSuite) TestTable_MustEvaluateValue_ErrorPanics() {
-	// action + assert.
-	s.PanicsWithError(morph.ErrMismatchingTypeName.Error(), func() { s.sut.MustEvaluate(TestModel{}) })
-}
-
-func (s *TableTestSuite) TestTable_EvaluateValue_WithTags() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
+	tests := []struct {
+		name           string
+		reflectOptions []morph.ReflectOption
+		preparations   func() TestModel
+		assertions     func(result morph.EvaluationResult)
+		panics         bool
+		err            error
+	}{
+		{
+			name:   "ErrorPanics",
+			panics: true,
+			err:    morph.ErrMismatchingTypeName,
+		},
+		{
+			name:           "PointersDereferenced",
+			reflectOptions: []morph.ReflectOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(result morph.EvaluationResult) {
+				s.Equal(
+					morph.EvaluationResult{
+						"id":         1,
+						"name":       "test",
+						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
+					},
+					result,
+				)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			if test.panics {
+				s.PanicsWithError(test.err.Error(), func() { s.sut.MustEvaluate(&TestModel{}) })
+				return
+			}
+
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model, test.reflectOptions...)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			result := s.sut.MustEvaluate(&model)
+
+			// assert.
+			test.assertions(result)
+		})
 	}
-
-	// action.
-	result, err := s.sut.Evaluate(m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"identifier": 1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_EvaluateValue_NilsPreserved() {
-	// arrange.
-	m := AnotherTestModel{
-		ID:          2,
-		Title:       "another",
-		Description: nil,
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
-}
-
-func (s *TableTestSuite) TestTable_EvaluatePointer_PointersDereferenced() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(&m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"id":         1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_MustEvaluatePointer_PointersDereferenced() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result := s.sut.MustEvaluate(&m)
-
-	// assert.
-	s.Equal(
-		morph.EvaluationResult{
-			"id":         1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_MustEvaluatePointer_ErrorPanics() {
-	// action + assert.
-	s.PanicsWithError(morph.ErrMismatchingTypeName.Error(), func() { s.sut.MustEvaluate(&TestModel{}) })
-}
-
-func (s *TableTestSuite) TestTable_EvaluatePointer_WithTags() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(&m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"identifier": 1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_EvaluatePointer_NilsPreserved() {
-	// arrange.
-	m := AnotherTestModel{
-		ID:          2,
-		Title:       "another",
-		Description: nil,
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(&m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
-}
-
-func (s *TableTestSuite) TestTable_EvaluateMismatched_PointersDereferenced() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"id":         1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_EvaluateMismatched_WithTags() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m, morph.WithTag("db"), morph.WithPrimaryKeyColumn("identifier"))
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(
-		morph.EvaluationResult{
-			"identifier": 1,
-			"name":       name,
-			"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
-		},
-		result,
-	)
-}
-
-func (s *TableTestSuite) TestTable_EvaluateMismatched_NilsPreserved() {
-	// arrange.
-	m := AnotherTestModel{
-		ID:          2,
-		Title:       "another",
-		Description: nil,
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	result, err := s.sut.Evaluate(m)
-
-	// assert.
-	s.NoError(err)
-	s.Equal(morph.EvaluationResult{"id": 2, "title": "another", "description": nil}, result)
 }
 
 func (s *TableTestSuite) TestTable_Evaluate_MissingTableName() {
@@ -724,33 +884,6 @@ func (s *TableTestSuite) TestTable_Evaluate_MissingNonPrimaryKeys() {
 	s.ErrorIs(err, morph.ErrMissingNonPrimaryKey)
 }
 
-func (s *TableTestSuite) TestTable_InsertQuery() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.InsertQuery()
-
-	// assert.
-	s.NoError(err)
-	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
-}
-
 func (s *TableTestSuite) TestTable_InsertQuery_InvalidTable() {
 	// action.
 	query, err := s.sut.InsertQuery()
@@ -760,112 +893,113 @@ func (s *TableTestSuite) TestTable_InsertQuery_InvalidTable() {
 	s.Empty(query)
 }
 
-func (s *TableTestSuite) TestTable_InsertQuery_WithNamedParameters() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+func (s *TableTestSuite) TestTable_InsertQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (:created_at, :id, :name);", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($, $, $);", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($1, $2, $3);", query)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, err := s.sut.InsertQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
 	}
-
-	// action.
-	query, err := s.sut.InsertQuery(morph.WithNamedParameters())
-
-	// assert.
-	s.NoError(err)
-	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (:created_at, :id, :name);", query)
-}
-
-func (s *TableTestSuite) TestTable_InsertQuery_WithPlaceholder_NoOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.InsertQuery(morph.WithPlaceholder("$", false))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($, $, $);", query)
-}
-
-func (s *TableTestSuite) TestTable_InsertQuery_WithPlaceholder_WithOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.InsertQuery(morph.WithPlaceholder("$", true))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($1, $2, $3);", query)
-}
-
-func (s *TableTestSuite) TestTable_UpdateQuery() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.UpdateQuery()
-
-	// assert.
-	s.NoError(err)
-	s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
 }
 
 func (s *TableTestSuite) TestTable_UpdateQuery_InvalidTable() {
@@ -877,138 +1011,241 @@ func (s *TableTestSuite) TestTable_UpdateQuery_InvalidTable() {
 	s.Empty(query)
 }
 
-func (s *TableTestSuite) TestTable_UpdateQuery_WithoutEmptyValues() {
-	// arrange.
-	m := TestModel{
-		ID:   1,
-		Name: nil,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+func (s *TableTestSuite) TestTable_UpdateQuery() {
+	tests := []struct {
+		name         string
+		queryOptions func(TestModel) []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+			},
+		},
+		{
+			name:         "WithoutEmptyValues",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithoutEmptyValues(&m)} },
+			preparations: func() TestModel {
+				return TestModel{
+					ID:   1,
+					Name: nil,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ? WHERE 1=1 AND T.id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithPlaceholder("$", false)} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithPlaceholder("$", true)} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.name = $2 WHERE 1=1 AND T.id = $3;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithNamedParameters()} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.name = :name WHERE 1=1 AND T.id = :id;", query)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, err := s.sut.UpdateQuery(test.queryOptions(model)...)
+
+			// assert.
+			test.assertions(query, err)
+		})
 	}
-
-	// action.
-	query, err := s.sut.UpdateQuery(morph.WithoutEmptyValues(&m))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("UPDATE test_models AS T SET T.created_at = ? WHERE 1=1 AND T.id = ?;", query)
-}
-
-func (s *TableTestSuite) TestTable_UpdateQuery_WithPlaceholder_NoOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.UpdateQuery(morph.WithPlaceholder("$", false))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("UPDATE test_models AS T SET T.created_at = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
-}
-
-func (s *TableTestSuite) TestTable_UpdateQuery_WithPlaceholder_WithOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.UpdateQuery(morph.WithPlaceholder("$", true))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.name = $2 WHERE 1=1 AND T.id = $3;", query)
-}
-
-func (s *TableTestSuite) TestTable_UpdateQuery_WithNamedParameters() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.UpdateQuery(morph.WithNamedParameters())
-
-	// assert.
-	s.NoError(err)
-	s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.name = :name WHERE 1=1 AND T.id = :id;", query)
 }
 
 func (s *TableTestSuite) TestTable_DeleteQuery() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $1;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = :id;", query)
+			},
 		},
 	}
 
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, err := s.sut.DeleteQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
 	}
-
-	// action.
-	query, err := s.sut.DeleteQuery()
-
-	// assert.
-	s.NoError(err)
-	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
 }
 
 func (s *TableTestSuite) TestTable_DeleteQuery_InvalidTable() {
@@ -1018,87 +1255,6 @@ func (s *TableTestSuite) TestTable_DeleteQuery_InvalidTable() {
 	// assert.
 	s.Error(err)
 	s.Empty(query)
-}
-
-func (s *TableTestSuite) TestTable_DeleteQuery_WithPlaceholder_NoOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.DeleteQuery(morph.WithPlaceholder("$", false))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $;", query)
-}
-
-func (s *TableTestSuite) TestTable_DeleteQuery_WithPlaceholder_WithOrdering() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.DeleteQuery(morph.WithPlaceholder("$", true))
-
-	// assert.
-	s.NoError(err)
-	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $1;", query)
-}
-
-func (s *TableTestSuite) TestTable_DeleteQuery_WithNamedParameters() {
-	// arrange.
-	name := "test"
-	m := TestModel{
-		ID:   1,
-		Name: &name,
-		Another: AnotherTestModel{
-			ID:          2,
-			Title:       "another",
-			Description: nil,
-		},
-	}
-
-	var err error
-	s.sut, err = morph.Reflect(&m)
-	if err != nil {
-		s.FailNow("unable to reflect in test", err)
-	}
-
-	// action.
-	query, err := s.sut.DeleteQuery(morph.WithNamedParameters())
-
-	// assert.
-	s.NoError(err)
-	s.Equal("DELETE FROM test_models WHERE 1=1 AND id = :id;", query)
 }
 
 func (s *TableTestSuite) TestTable_EvaluationResults_Empties() {
