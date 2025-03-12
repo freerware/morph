@@ -783,105 +783,110 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 	}
 }
 
-func (s *TableTestSuite) TestTable_Evaluate_MissingTableName() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("T")
-	s.sut.SetName("")
+func (s *TableTestSuite) TestTable_EvaluateErrors() {
+	tests := []struct {
+		name         string
+		obj          interface{}
+		preparations func()
+		err          error
+	}{
+		{
+			name: "MissingTableName",
+			obj:  &TestModel{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("T")
+				s.sut.SetName("")
+			},
+			err: morph.ErrMissingTableName,
+		},
+		{
+			name: "MissingColumns",
+			obj:  &TestModel{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("T")
+				s.sut.SetName("test_models")
+			},
+			err: morph.ErrMissingColumns,
+		},
+		{
+			name: "MissingTableAlias",
+			obj:  &TestModel{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("")
+				s.sut.SetName("test_models")
+			},
+			err: morph.ErrMissingTableAlias,
+		},
+		{
+			name: "MismatchingTypeName",
+			obj:  struct{}{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("T")
+				s.sut.SetName("test_models")
 
-	// action.
-	_, err := s.sut.Evaluate(TestModel{})
+				column := morph.Column{}
+				column.SetField("Name")
+				column.SetName("name")
+				column.SetStrategy(morph.FieldStrategyStructField)
 
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingTableName)
-}
+				s.sut.AddColumns(column)
+			},
+			err: morph.ErrMismatchingTypeName,
+		},
+		{
+			name: "MissingPrimaryKeys",
+			obj:  &TestModel{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("T")
+				s.sut.SetName("test_models")
 
-func (s *TableTestSuite) TestTable_Evaluate_MissingTableAlias() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("")
-	s.sut.SetName("test_models")
+				column := morph.Column{}
+				column.SetField("Name")
+				column.SetPrimaryKey(false)
+				column.SetName("name")
+				column.SetStrategy(morph.FieldStrategyStructField)
 
-	// action.
-	_, err := s.sut.Evaluate(TestModel{})
+				s.sut.AddColumns(column)
+			},
+			err: morph.ErrMissingPrimaryKey,
+		},
+		{
+			name: "MissingNonPrimaryKeys",
+			obj:  &TestModel{},
+			preparations: func() {
+				s.sut.SetType(TestModel{})
+				s.sut.SetAlias("T")
+				s.sut.SetName("test_models")
 
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingTableAlias)
-}
+				column := morph.Column{}
+				column.SetField("ID")
+				column.SetPrimaryKey(true)
+				column.SetName("id")
+				column.SetStrategy(morph.FieldStrategyStructField)
 
-func (s *TableTestSuite) TestTable_Evaluate_MissingColumns() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("T")
-	s.sut.SetName("test_models")
+				s.sut.AddColumns(column)
+			},
+			err: morph.ErrMissingNonPrimaryKey,
+		},
+	}
 
-	// action.
-	_, err := s.sut.Evaluate(TestModel{})
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			test.preparations()
 
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingColumns)
-}
+			// action.
+			_, err := s.sut.Evaluate(test.obj)
 
-func (s *TableTestSuite) TestTable_Evaluate_MismatchingTypeName() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("T")
-	s.sut.SetName("test_models")
-
-	column := morph.Column{}
-	column.SetField("Name")
-	column.SetName("name")
-	column.SetStrategy(morph.FieldStrategyStructField)
-
-	s.sut.AddColumns(column)
-
-	// action.
-	_, err := s.sut.Evaluate(struct{}{})
-
-	// assert.
-	s.ErrorIs(err, morph.ErrMismatchingTypeName)
-}
-
-func (s *TableTestSuite) TestTable_Evaluate_MissingPrimaryKeys() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("T")
-	s.sut.SetName("test_models")
-
-	column := morph.Column{}
-	column.SetField("Name")
-	column.SetPrimaryKey(false)
-	column.SetName("name")
-	column.SetStrategy(morph.FieldStrategyStructField)
-
-	s.sut.AddColumns(column)
-
-	// action.
-	_, err := s.sut.Evaluate(TestModel{})
-
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingPrimaryKey)
-}
-
-func (s *TableTestSuite) TestTable_Evaluate_MissingNonPrimaryKeys() {
-	// arrange.
-	s.sut.SetType(TestModel{})
-	s.sut.SetAlias("T")
-	s.sut.SetName("test_models")
-
-	column := morph.Column{}
-	column.SetField("ID")
-	column.SetPrimaryKey(true)
-	column.SetName("id")
-	column.SetStrategy(morph.FieldStrategyStructField)
-
-	s.sut.AddColumns(column)
-
-	// action.
-	_, err := s.sut.Evaluate(TestModel{})
-
-	// assert.
-	s.ErrorIs(err, morph.ErrMissingNonPrimaryKey)
+			// assert.
+			s.ErrorIs(err, test.err)
+		})
+	}
 }
 
 func (s *TableTestSuite) TestTable_InsertQuery_InvalidTable() {
