@@ -48,6 +48,11 @@ func Reflect(obj interface{}, options ...ReflectOption) (Table, error) {
 			tableName = &tName
 		}
 
+		if configuration.ScreamingSnakeCaseTableName() {
+			tName := strings.ToUpper(strcase.ToSnake(t.Name()))
+			tableName = &tName
+		}
+
 		if configuration.CamelCaseTableName() {
 			tName := strcase.ToCamel(t.Name())
 			tableName = &tName
@@ -133,8 +138,21 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			if c.SnakeCaseColumnName() {
 				columnName = strcase.ToSnake(columnName)
 			}
+
+			if c.ScreamingSnakeCaseColumnName() {
+				columnName = strings.ToUpper(strcase.ToSnake(columnName))
+			}
+
 			if c.CamelCaseColumnName() {
 				columnName = strcase.ToCamel(columnName)
+			}
+
+			if c.UppercaseColumnName() {
+				columnName = strings.ToUpper(columnName)
+			}
+
+			if c.LowercaseColumnName() {
+				columnName = strings.ToLower(columnName)
 			}
 		}
 
@@ -187,8 +205,21 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 			if c.SnakeCaseColumnName() {
 				columnName = strcase.ToSnake(columnName)
 			}
+
+			if c.ScreamingSnakeCaseColumnName() {
+				columnName = strings.ToUpper(strcase.ToSnake(columnName))
+			}
+
 			if c.CamelCaseColumnName() {
 				columnName = strcase.ToCamel(columnName)
+			}
+
+			if c.UppercaseColumnName() {
+				columnName = strings.ToUpper(columnName)
+			}
+
+			if c.LowercaseColumnName() {
+				columnName = strings.ToLower(columnName)
 			}
 		}
 

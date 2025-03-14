@@ -355,6 +355,117 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
+			name: "WithInferredColumnNames_ScreamingSnakeCase_SetsToScreamingSnakeCase",
+			obj:  s.obj,
+			options: []morph.ReflectOption{
+				morph.WithInferredColumnNames(morph.ScreamingSnakeCaseStrategy),
+				morph.WithPrimaryKeyColumn("ID"),
+			},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("ID")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("NAME")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("CREATED_AT")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name: "WithInferredColumnNames_Uppercase_SetsToUppercase",
+			obj:  s.obj,
+			options: []morph.ReflectOption{
+				morph.WithInferredColumnNames(morph.UpperCaseStrategy),
+				morph.WithPrimaryKeyColumn("ID"),
+			},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("ID")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("NAME")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("CREATEDAT")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithInferredColumnNames_Lowercase_SetsToLowercase",
+			obj:     s.obj,
+			options: []morph.ReflectOption{morph.WithInferredColumnNames(morph.LowerCaseStrategy)},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("createdat")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
 			name:    "WithInferredColumnNames_Camelcase_SetsToCamelcase",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithInferredColumnNames(morph.CamelCaseStrategy)},
@@ -920,6 +1031,117 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 
 				var createdAtColumn morph.Column
 				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name: "WithInferredColumnNames_ScreamingSnakeCase_SetsToScreamingSnakeCase",
+			obj:  s.objPtr,
+			options: []morph.ReflectOption{
+				morph.WithInferredColumnNames(morph.ScreamingSnakeCaseStrategy),
+				morph.WithPrimaryKeyColumn("ID"),
+			},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.objPtr)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("ID")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("NAME")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("CREATED_AT")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name: "WithInferredColumnNames_Uppercase_SetsToUppercase",
+			obj:  s.objPtr,
+			options: []morph.ReflectOption{
+				morph.WithInferredColumnNames(morph.UpperCaseStrategy),
+				morph.WithPrimaryKeyColumn("ID"),
+			},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.objPtr)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("ID")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("NAME")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("CREATEDAT")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithInferredColumnNames_LowerCase_SetsToLowerCase",
+			obj:     s.objPtr,
+			options: []morph.ReflectOption{morph.WithInferredColumnNames(morph.LowerCaseStrategy)},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.objPtr)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("name")
+				nameColumn.SetField("Name")
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("createdat")
 				createdAtColumn.SetField("CreatedAt")
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
