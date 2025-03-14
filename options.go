@@ -9,6 +9,9 @@ const (
 	// SnakeCaseStrategy is the snake case strategy.
 	SnakeCaseStrategy CaseStrategy = "snake"
 
+	// ScreamingSnakeCaseStrategy is the screaming (uppercase) snake case strategy.
+	ScreamingSnakeCaseStrategy CaseStrategy = "screaming_snake"
+
 	// CamelCaseStrategy is the camel case strategy.
 	CamelCaseStrategy CaseStrategy = "camel"
 
@@ -90,6 +93,11 @@ func (c *ReflectConfiguration) SnakeCaseTableName() bool {
 	return c.HasTableNameStrategy() && *c.TableNameStrategy == SnakeCaseStrategy
 }
 
+// ScreamingSnakeCaseTableName indicates if the table name strategy is screaming snake case.
+func (c *ReflectConfiguration) ScreamingSnakeCaseTableName() bool {
+	return c.HasTableNameStrategy() && *c.TableNameStrategy == ScreamingSnakeCaseStrategy
+}
+
 // CamelCaseTableName indicates if the table name strategy is camel case.
 func (c *ReflectConfiguration) CamelCaseTableName() bool {
 	return c.HasTableNameStrategy() && *c.TableNameStrategy == CamelCaseStrategy
@@ -100,9 +108,24 @@ func (c *ReflectConfiguration) SnakeCaseColumnName() bool {
 	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == SnakeCaseStrategy
 }
 
+// ScreamingSnakeCaseColumnName indicates if the column name strategy is scream snake case.
+func (c *ReflectConfiguration) ScreamingSnakeCaseColumnName() bool {
+	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == ScreamingSnakeCaseStrategy
+}
+
 // CamelCaseColumnName indicates if the column name strategy is camel case.
 func (c *ReflectConfiguration) CamelCaseColumnName() bool {
 	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == CamelCaseStrategy
+}
+
+// UppercaseColumnName indicates if the column name strategy is uppercase.
+func (c *ReflectConfiguration) UppercaseColumnName() bool {
+	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == UpperCaseStrategy
+}
+
+// LowercaseColumnName indicates if the column name strategy is uppercase.
+func (c *ReflectConfiguration) LowercaseColumnName() bool {
+	return c.HasColumnNameStrategy() && *c.ColumnNameStrategy == LowerCaseStrategy
 }
 
 // LowercaseTableAlias indicates if the table alias strategy is lowercase.
