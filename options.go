@@ -43,6 +43,7 @@ var (
 		WithInferredTableName(DefaultTableNameStrategy, true),
 		WithInferredTableAlias(DefaultTableAliasStrategy, DefaultTableAliasLength),
 		WithInferredColumnNames(DefaultColumnNameStrategy),
+		WithoutMatchingMethods("^Set.*"),
 		WithPrimaryKeyColumn("id"),
 	}
 )
