@@ -720,6 +720,43 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				return t
 			},
 		},
+		{
+			name:    "WithColumnNameMapping",
+			obj:     s.obj,
+			options: []morph.ReflectOption{morph.WithColumnNameMapping("Name", "given_name")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.obj)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("given_name")
+				nameColumn.SetField("Name")
+				nameColumn.SetPrimaryKey(false)
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetPrimaryKey(false)
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -1473,6 +1510,43 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetName("created_at")
 				createdAtColumn.SetField("CreatedAt")
 				createdAtColumn.SetPrimaryKey(true)
+				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
+				createdAtColumn.SetFieldType("time.Time")
+
+				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				return t
+			},
+		},
+		{
+			name:    "WithColumnNameMapping",
+			obj:     s.objPtr,
+			options: []morph.ReflectOption{morph.WithColumnNameMapping("Name", "given_name")},
+			expected: func() morph.Table {
+				t := morph.Table{}
+				t.SetType(s.objPtr)
+				t.SetName("test_models")
+				t.SetAlias("T")
+
+				columns := []morph.Column{}
+
+				var idColumn morph.Column
+				idColumn.SetName("id")
+				idColumn.SetField("ID")
+				idColumn.SetPrimaryKey(true)
+				idColumn.SetStrategy(morph.FieldStrategyStructField)
+				idColumn.SetFieldType("int")
+
+				var nameColumn morph.Column
+				nameColumn.SetName("given_name")
+				nameColumn.SetField("Name")
+				nameColumn.SetPrimaryKey(false)
+				nameColumn.SetStrategy(morph.FieldStrategyStructField)
+				nameColumn.SetFieldType("*string")
+
+				var createdAtColumn morph.Column
+				createdAtColumn.SetName("created_at")
+				createdAtColumn.SetField("CreatedAt")
+				createdAtColumn.SetPrimaryKey(false)
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 

@@ -66,6 +66,7 @@ type ReflectConfiguration struct {
 	IsTableNamePlural      bool
 	TableAliasLength       *int
 	PrimaryKeyColumns      []string
+	ColumnNameMappings     map[string]string
 }
 
 // HasTableName indicates if the table name is set.
@@ -171,6 +172,12 @@ func (c *ReflectConfiguration) PluralTableName() bool {
 // HasTableAliasLength indicates if the table alias length is set.
 func (c *ReflectConfiguration) HasTableAliasLength() bool {
 	return c.TableAliasLength != nil
+}
+
+// HasColumnNameMappings indicates if any explicit column name mappings have
+// been set.
+func (c *ReflectConfiguration) HasColumnNameMappings() bool {
+	return len(c.ColumnNameMappings) > 0
 }
 
 var (
@@ -287,6 +294,18 @@ var (
 			}
 			pks := append([]string{}, names...)
 			c.PrimaryKeyColumns = pks
+		}
+	}
+
+	// WithColumnNameMapping specifies a single column mapping between the provided
+	// field name and column name. Both the field name and column name are case
+	// sensitive, and the name provided will be used regardless of other options specified.
+	WithColumnNameMapping = func(field, name string) ReflectOption {
+		return func(c *ReflectConfiguration) {
+			if c.ColumnNameMappings == nil {
+				c.ColumnNameMappings = make(map[string]string)
+			}
+			c.ColumnNameMappings[field] = name
 		}
 	}
 )

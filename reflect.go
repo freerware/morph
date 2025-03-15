@@ -158,6 +158,11 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 
 		var column Column
 		column.SetField(fieldName)
+		if c.HasColumnNameMappings() {
+			if cName, ok := c.ColumnNameMappings[fieldName]; ok {
+				columnName = cName
+			}
+		}
 		column.SetName(columnName)
 		if slices.Contains(c.PrimaryKeyColumns, columnName) {
 			column.SetPrimaryKey(true)
@@ -225,6 +230,11 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 
 		var column Column
 		column.SetField(fieldName)
+		if c.HasColumnNameMappings() {
+			if cName, ok := c.ColumnNameMappings[fieldName]; ok {
+				columnName = cName
+			}
+		}
 		column.SetName(columnName)
 		if slices.Contains(c.PrimaryKeyColumns, columnName) {
 			column.SetPrimaryKey(true)
