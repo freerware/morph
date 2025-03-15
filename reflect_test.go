@@ -22,6 +22,10 @@ func (t TestModel) Ignored() {
 	return
 }
 
+func (t *TestModel) SetName(name string) {
+	t.Name = &name
+}
+
 func (t TestModel) AnotherPtr() *AnotherTestModel {
 	return &t.Another
 }
