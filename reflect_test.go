@@ -79,7 +79,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			err:     morph.ErrNotStruct,
 		},
 		{
-			name:    "WithNoOptions_Success",
+			name:    "WithNoOptions_AppliesDefaults",
 			obj:     s.obj,
 			options: []morph.ReflectOption{},
 			expected: func() morph.Table {
@@ -254,7 +254,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithInferredTableName_Singular_Success",
+			name:    "WithInferredTableName_Singular_SetsTableNameWithSingular",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithInferredTableName(morph.SnakeCaseStrategy, false)},
 			expected: func() morph.Table {
@@ -289,7 +289,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithInferredTableName_CamelCase_Success",
+			name:    "WithInferredTableName_CamelCase_SetsTableNameToCamelCase",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithInferredTableName(morph.CamelCaseStrategy, true)},
 			expected: func() morph.Table {
@@ -505,7 +505,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithTableName_Success",
+			name:    "WithTableName_SetsTableName",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithTableName("TEST_MOD")},
 			expected: func() morph.Table {
@@ -540,7 +540,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithTableAlias_Success",
+			name:    "WithTableAlias_SetsTableAlias",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithTableAlias("tm1")},
 			expected: func() morph.Table {
@@ -575,7 +575,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithTag_Success",
+			name:    "WithTag_SetsTag",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithTag("db")},
 			expected: func() morph.Table {
@@ -609,7 +609,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithoutMethods_Success",
+			name:    "WithoutMethods_SetsMethodExclusions",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithoutMethods("CreatedAt")},
 			expected: func() morph.Table {
@@ -638,7 +638,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithoutMatchingMethods_Success",
+			name:    "WithoutMatchingMethods_SetsMethodExclusionPatterns",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithoutMatchingMethods("^CreatedAt$")},
 			expected: func() morph.Table {
@@ -667,7 +667,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithoutFields_Success",
+			name:    "WithoutFields_SetsFieldExclusions",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithoutFields("Name")},
 			expected: func() morph.Table {
@@ -696,7 +696,7 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 			},
 		},
 		{
-			name:    "WithoutMatchingFields_Success",
+			name:    "WithoutMatchingFields_SetsFieldExclusionPatterns",
 			obj:     s.obj,
 			options: []morph.ReflectOption{morph.WithoutMatchingFields("^Name$")},
 			expected: func() morph.Table {
@@ -801,7 +801,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			err:     morph.ErrNotStruct,
 		},
 		{
-			name:    "WithNoOptions_Success",
+			name:    "WithNoOptions_AppliesDefaults",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{},
 			expected: func() morph.Table {
@@ -976,7 +976,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithInferredTableName_Singular_Success",
+			name:    "WithInferredTableName_Singular_SetsTableNameWithSingular",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithInferredTableName(morph.SnakeCaseStrategy, false)},
 			expected: func() morph.Table {
@@ -1011,7 +1011,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithInferredTableName_CamelCase_Success",
+			name:    "WithInferredTableName_CamelCase_SetsTableNameToCamelCase",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithInferredTableName(morph.CamelCaseStrategy, true)},
 			expected: func() morph.Table {
@@ -1227,7 +1227,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithTableName_Success",
+			name:    "WithTableName_SetsTableName",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithTableName("TEST_MOD")},
 			expected: func() morph.Table {
@@ -1262,7 +1262,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithTableAlias_Success",
+			name:    "WithTableAlias_SetsTableAlias",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithTableAlias("tm1")},
 			expected: func() morph.Table {
@@ -1297,7 +1297,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithTag_Success",
+			name:    "WithTag_SetsTag",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithTag("db")},
 			expected: func() morph.Table {
@@ -1332,7 +1332,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithoutMethods_Success",
+			name:    "WithoutMethods_SetsMethodExclusions",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithoutMethods("CreatedAt")},
 			expected: func() morph.Table {
@@ -1361,7 +1361,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithoutMatchingMethods_Success",
+			name:    "WithoutMatchingMethods_SetsMethodExclusionPatterns",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithoutMatchingMethods("^CreatedAt$")},
 			expected: func() morph.Table {
@@ -1390,7 +1390,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithoutFields_Success",
+			name:    "WithoutFields_SetsFieldExclusions",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithoutFields("Name")},
 			expected: func() morph.Table {
@@ -1419,7 +1419,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 			},
 		},
 		{
-			name:    "WithoutMatchingFields_Success",
+			name:    "WithoutMatchingFields_SetsFieldExclusionPatterns",
 			obj:     s.objPtr,
 			options: []morph.ReflectOption{morph.WithoutMatchingFields("^Name$")},
 			expected: func() morph.Table {
