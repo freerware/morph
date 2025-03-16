@@ -833,7 +833,9 @@ func (s *TableTestSuite) TestTable_EvaluateErrors() {
 				column.SetName("name")
 				column.SetStrategy(morph.FieldStrategyStructField)
 
-				s.sut.AddColumns(column)
+				if err := s.sut.AddColumns(column); err != nil {
+					s.FailNow("failed to prepare test: %v", err.Error())
+				}
 			},
 			err: morph.ErrMismatchingTypeName,
 		},
@@ -851,7 +853,9 @@ func (s *TableTestSuite) TestTable_EvaluateErrors() {
 				column.SetName("name")
 				column.SetStrategy(morph.FieldStrategyStructField)
 
-				s.sut.AddColumns(column)
+				if err := s.sut.AddColumns(column); err != nil {
+					s.FailNow("failed to prepare test: %v", err.Error())
+				}
 			},
 			err: morph.ErrMissingPrimaryKey,
 		},
@@ -869,7 +873,9 @@ func (s *TableTestSuite) TestTable_EvaluateErrors() {
 				column.SetName("id")
 				column.SetStrategy(morph.FieldStrategyStructField)
 
-				s.sut.AddColumns(column)
+				if err := s.sut.AddColumns(column); err != nil {
+					s.FailNow("failed to prepare test: %v", err.Error())
+				}
 			},
 			err: morph.ErrMissingNonPrimaryKey,
 		},

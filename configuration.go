@@ -21,7 +21,9 @@ func (c Configuration) AsMetadata() []Table {
 			column.SetFieldType(c.FieldType)
 			column.SetStrategy(c.FieldStrategy)
 			column.SetPrimaryKey(c.PrimaryKey)
-			table.AddColumn(column)
+			if err := table.AddColumn(column); err != nil {
+				continue
+			}
 		}
 		tables = append(tables, table)
 	}
