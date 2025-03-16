@@ -18,9 +18,7 @@ func (t *TestModel) CreatedAt() time.Time {
 	return time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
 }
 
-func (t TestModel) Ignored() {
-	return
-}
+func (t TestModel) Ignored() {}
 
 func (t *TestModel) SetName(name string) {
 	t.Name = &name
@@ -57,6 +55,7 @@ func (s *ReflectTestSuite) SetupTest() {
 			ID:          2,
 			Title:       "another",
 			Description: nil,
+			secret:      "shhh!",
 		},
 	}
 
@@ -109,7 +108,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -144,7 +145,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -179,7 +182,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -214,7 +219,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -249,7 +256,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -284,7 +293,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -319,7 +330,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -354,7 +367,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -392,7 +407,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -430,7 +447,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -465,7 +484,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -500,7 +521,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -535,7 +558,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -570,7 +595,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -604,7 +631,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -633,7 +662,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -662,7 +693,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -691,7 +724,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -720,7 +755,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -757,7 +794,9 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -831,7 +870,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -866,7 +907,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -901,7 +944,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -936,7 +981,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -971,7 +1018,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1006,7 +1055,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1041,7 +1092,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1076,7 +1129,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1114,7 +1169,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1152,7 +1209,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1187,7 +1246,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1222,7 +1283,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1257,7 +1320,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1292,7 +1357,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1327,7 +1394,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1356,7 +1425,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1385,7 +1456,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				t.AddColumns(append(columns, idColumn, nameColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1414,7 +1487,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1443,7 +1518,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1480,7 +1557,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1517,7 +1596,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
@@ -1554,7 +1635,9 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...)
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+					s.FailNow("failed to setup expectations for test: %v", err.Error())
+				}
 				return t
 			},
 		},
