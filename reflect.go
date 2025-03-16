@@ -85,7 +85,9 @@ func Reflect(obj interface{}, options ...ReflectOption) (Table, error) {
 	table.SetType(obj)
 	table.SetName(*tableName)
 	table.SetAlias(*tableAlias)
-	table.AddColumns(columns...)
+	if err := table.AddColumns(columns...); err != nil {
+		return Table{}, err
+	}
 
 	return table, nil
 }
