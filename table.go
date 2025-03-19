@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 	"text/template"
 )
 
+// Defines the various errors that can occur when interacting with tables.
 var (
 	// ErrMissingTypeName represents an error encountered when evaluation is attempted but the
 	// table does not have a type name configured.
@@ -36,6 +38,10 @@ var (
 
 	// ErrMissingNonPrimaryKey represents an error encountered when a table does not have any non-primary key columns.
 	ErrMissingNonPrimaryKey = errors.New("morph: table must have at least one non-primary key column")
+)
+
+var (
+	namedParamRegExp *regexp.Regexp = regexp.MustCompile(`:[a-zA-Z0-9_]+`)
 )
 
 type EvaluationResult map[string]interface{}
@@ -363,12 +369,80 @@ func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
 	return t.query(insertTmpl, options...)
 }
 
+func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+	qo := &QueryOptions{}
+	opts := append(DefaultQueryOptions, options...)
+	for _, opt := range opts {
+		opt(qo)
+	}
+
+	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
+	if err != nil {
+		return "", nil, err
+	}
+
+	result, err := t.Evaluate(obj)
+	if err != nil {
+		return "", nil, err
+	}
+
+	args := []interface{}{}
+	missing := []string{}
+
+	count := 0
+	query = namedParamRegExp.ReplaceAllStringFunc(query, func(match string) string {
+		name := match[1:]
+
+		if arg, ok := result[name]; ok {
+			args = append(args, arg)
+			if qo.Ordered {
+				count += 1
+				return qo.Placeholder + fmt.Sprintf("%d", count)
+			}
+			return qo.Placeholder
+		}
+
+		missing = append(missing, name)
+		return match
+	})
+
+	if len(missing) > 0 {
+		return "", nil, errors.New("morph: missing values for named parameters: " + strings.Join(missing, ", "))
+	}
+
+	return query, args, nil
+}
+
+func (t *Table) MustInsertQuery(options ...QueryOption) string {
+	query, err := t.InsertQuery(options...)
+	if err != nil {
+		panic(err)
+	}
+	return query
+}
+
 // UpdateQuery generates an update query for the table.
 func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 	return t.query(updateTmpl, options...)
 }
 
+func (t *Table) MustUpdateQuery(options ...QueryOption) string {
+	query, err := t.UpdateQuery(options...)
+	if err != nil {
+		panic(err)
+	}
+	return query
+}
+
 // DeleteQuery generates a delete query for the table.
 func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 	return t.query(deleteTmpl, options...)
+}
+
+func (t *Table) MustDeleteQuery(options ...QueryOption) string {
+	query, err := t.DeleteQuery(options...)
+	if err != nil {
+		panic(err)
+	}
+	return query
 }
