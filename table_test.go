@@ -1013,6 +1013,98 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 	}
 }
 
+func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []interface{}, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($, $, $);", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($1, $2, $3);", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, args, err := s.sut.InsertQueryWithArgs(&model, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
 func (s *TableTestSuite) TestTable_UpdateQuery_InvalidTable() {
 	// action.
 	query, err := s.sut.UpdateQuery()
