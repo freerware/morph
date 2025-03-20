@@ -1242,6 +1242,118 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 	}
 }
 
+func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions func(m TestModel) []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []interface{}, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithoutEmptyValues",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithoutEmptyValues(&m)} },
+			preparations: func() TestModel {
+				return TestModel{
+					ID:   1,
+					Name: nil,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ? WHERE 1=1 AND T.id = ?;", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithPlaceholder("$", false)} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: func(m TestModel) []morph.QueryOption { return []morph.QueryOption{morph.WithPlaceholder("$", true)} },
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.name = $2 WHERE 1=1 AND T.id = $3;", query)
+				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, args, err := s.sut.UpdateQueryWithArgs(model, test.queryOptions(model)...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
 func (s *TableTestSuite) TestTable_DeleteQuery() {
 	tests := []struct {
 		name         string
@@ -1347,6 +1459,98 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 
 			// assert.
 			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []interface{}, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
+				s.ElementsMatch([]interface{}{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $;", query)
+				s.ElementsMatch([]interface{}{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $1;", query)
+				s.ElementsMatch([]interface{}{obj.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, args, err := s.sut.DeleteQueryWithArgs(model, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
 		})
 	}
 }

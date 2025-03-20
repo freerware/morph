@@ -44,8 +44,10 @@ var (
 	namedParamRegExp *regexp.Regexp = regexp.MustCompile(`:[a-zA-Z0-9_]+`)
 )
 
+// EvaluationResult represents the result of evaluating a table against an object.
 type EvaluationResult map[string]interface{}
 
+// Empties retrieves all of the keys in the result that have nil values.
 func (r EvaluationResult) Empties() []string {
 	var empties []string
 	for key, val := range r {
@@ -56,6 +58,7 @@ func (r EvaluationResult) Empties() []string {
 	return empties
 }
 
+// NonEmpties retrieves all of the keys in the result that have non-nil values.
 func (r EvaluationResult) NonEmpties() []string {
 	var nonEmpties []string
 	for key, val := range r {
@@ -364,21 +367,11 @@ func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, 
 	return buf.String(), nil
 }
 
-// InsertQuery generates an insert query for the table.
-func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
-	return t.query(insertTmpl, options...)
-}
-
-func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+func (t *Table) queryWithArgs(namedQuery string, obj interface{}, options ...QueryOption) (string, []interface{}, error) {
 	qo := &QueryOptions{}
 	opts := append(DefaultQueryOptions, options...)
 	for _, opt := range opts {
 		opt(qo)
-	}
-
-	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
-	if err != nil {
-		return "", nil, err
 	}
 
 	result, err := t.Evaluate(obj)
@@ -390,7 +383,7 @@ func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (st
 	missing := []string{}
 
 	count := 0
-	query = namedParamRegExp.ReplaceAllStringFunc(query, func(match string) string {
+	query := namedParamRegExp.ReplaceAllStringFunc(namedQuery, func(match string) string {
 		name := match[1:]
 
 		if arg, ok := result[name]; ok {
@@ -413,12 +406,25 @@ func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (st
 	return query, args, nil
 }
 
-func (t *Table) MustInsertQuery(options ...QueryOption) string {
-	query, err := t.InsertQuery(options...)
+// InsertQuery generates an insert query for the table.
+func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
+	return t.query(insertTmpl, options...)
+}
+
+// InsertQueryWithArgs generates an insert query for the table along with arguments
+// derived from the provided object.
+func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
 	if err != nil {
-		panic(err)
+		return "", nil, err
 	}
-	return query
+
+	return t.queryWithArgs(query, obj, options...)
+}
+
+// MustInsertQuery performs the same operation as InsertQuery but panics if an error occurs.
+func (t *Table) MustInsertQuery(options ...QueryOption) string {
+	return Must(t.InsertQuery(options...))
 }
 
 // UpdateQuery generates an update query for the table.
@@ -426,12 +432,20 @@ func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 	return t.query(updateTmpl, options...)
 }
 
-func (t *Table) MustUpdateQuery(options ...QueryOption) string {
-	query, err := t.UpdateQuery(options...)
+// UpdateQueryWithArgs generates an update query for the table along with arguments
+// derived from the provided object.
+func (t *Table) UpdateQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+	query, err := t.UpdateQuery(append(options, WithNamedParameters())...)
 	if err != nil {
-		panic(err)
+		return "", nil, err
 	}
-	return query
+
+	return t.queryWithArgs(query, obj, options...)
+}
+
+// MustUpdateQuery performs the same operation as UpdateQuery but panics if an error occurs.
+func (t *Table) MustUpdateQuery(options ...QueryOption) string {
+	return Must(t.UpdateQuery(options...))
 }
 
 // DeleteQuery generates a delete query for the table.
@@ -439,10 +453,18 @@ func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 	return t.query(deleteTmpl, options...)
 }
 
-func (t *Table) MustDeleteQuery(options ...QueryOption) string {
-	query, err := t.DeleteQuery(options...)
+// DeleteQueryWithArgs generates a delete query for the table along with arguments
+// derived from the provided object.
+func (t *Table) DeleteQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+	query, err := t.DeleteQuery(append(options, WithNamedParameters())...)
 	if err != nil {
-		panic(err)
+		return "", nil, err
 	}
-	return query
+
+	return t.queryWithArgs(query, obj, options...)
+}
+
+// MustDeleteQuery performs the same operation as DeleteQuery but panics if an error occurs.
+func (t *Table) MustDeleteQuery(options ...QueryOption) string {
+	return Must(t.DeleteQuery(options...))
 }
