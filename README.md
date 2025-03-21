@@ -2,7 +2,7 @@
 
 A compact package for organizing and maintaining your entity database metadata.
 
-[![GoDoc][doc-img]][doc] [![Build Status][ci-img]][ci]
+[![GoDoc][doc-img]][doc]
 [![Coverage Status][coverage-img]][coverage] [![Release][release-img]][release]
 [![License][license-img]][license]
 
@@ -224,10 +224,8 @@ how we do things.
 [code-of-conduct]: https://github.com/freerware/morph/blob/master/CODE_OF_CONDUCT.md
 [doc-img]: https://godoc.org/github.com/freerware/morph?status.svg
 [doc]: https://godoc.org/github.com/freerware/morph
-[ci-img]: https://travis-ci.org/freerware/morph.svg?branch=master
-[ci]: https://travis-ci.org/freerware/morph
-[coverage-img]: https://coveralls.io/repos/github/freerware/morph/badge.svg?branch=master
-[coverage]: https://coveralls.io/github/freerware/morph?branch=master
+[coverage-img]: https://codecov.io/gh/freerware/morph/graph/badge.svg?token=QEB9NTJHVL
+[coverage]: https://codecov.io/gh/freerware/morph
 [license]: https://opensource.org/licenses/Apache-2.0
 [license-img]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
 [release]: https://github.com/freerware/morph/releases
