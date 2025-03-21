@@ -38,8 +38,8 @@ type AnotherTestModel struct {
 type ReflectTestSuite struct {
 	suite.Suite
 
-	obj    interface{}
-	objPtr interface{}
+	obj    any
+	objPtr any
 }
 
 func TestReflectTestSuite(t *testing.T) {
@@ -66,7 +66,7 @@ func (s *ReflectTestSuite) SetupTest() {
 func (s *ReflectTestSuite) TestReflect_WithValue() {
 	tests := []struct {
 		name     string
-		obj      interface{}
+		obj      any
 		options  []morph.ReflectOption
 		expected func() morph.Table
 		err      error
@@ -828,7 +828,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 
 	tests := []struct {
 		name     string
-		obj      interface{}
+		obj      any
 		options  []morph.ReflectOption
 		expected func() morph.Table
 		err      error

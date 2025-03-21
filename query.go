@@ -14,7 +14,7 @@ type QueryOptions struct {
 	Ordered     bool
 	Named       bool
 	OmitEmpty   bool
-	obj         interface{}
+	obj         any
 }
 
 // QueryOption represents a function that modifies the query options.
@@ -47,7 +47,7 @@ func WithNamedParameters() QueryOption {
 }
 
 // WithoutEmptyValues indicates that columns with no value should be omitted from the query.
-func WithoutEmptyValues(obj interface{}) QueryOption {
+func WithoutEmptyValues(obj any) QueryOption {
 	return func(q *QueryOptions) {
 		q.OmitEmpty = true
 		q.obj = obj
