@@ -45,7 +45,7 @@ var (
 )
 
 // EvaluationResult represents the result of evaluating a table against an object.
-type EvaluationResult map[string]interface{}
+type EvaluationResult map[string]any
 
 // Empties retrieves all of the keys in the result that have nil values.
 func (r EvaluationResult) Empties() []string {
@@ -79,7 +79,7 @@ type Table struct {
 }
 
 // SetType associates the entity type to the table.
-func (t *Table) SetType(entity interface{}) {
+func (t *Table) SetType(entity any) {
 	t.SetTypeName(fmt.Sprintf("%T", entity))
 }
 
@@ -203,7 +203,7 @@ func (t *Table) AddColumns(columns ...Column) error {
 // Evaluate applies the table to the provided object to produce a result
 // containing the column names and their respective values. The result
 // can then be subsequently used to execute queries.
-func (t *Table) Evaluate(obj interface{}) (EvaluationResult, error) {
+func (t *Table) Evaluate(obj any) (EvaluationResult, error) {
 	objType := reflect.TypeOf(obj)
 	objVal := reflect.ValueOf(obj)
 
@@ -289,7 +289,7 @@ func (t *Table) Evaluate(obj interface{}) (EvaluationResult, error) {
 }
 
 // MustEvaluate performs the same operation as Evaluate but panics if an error occurs.
-func (t *Table) MustEvaluate(obj interface{}) EvaluationResult {
+func (t *Table) MustEvaluate(obj any) EvaluationResult {
 	results, err := t.Evaluate(obj)
 	if err != nil {
 		panic(err)
@@ -367,7 +367,7 @@ func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, 
 	return buf.String(), nil
 }
 
-func (t *Table) queryWithArgs(namedQuery string, obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+func (t *Table) queryWithArgs(namedQuery string, obj any, options ...QueryOption) (string, []any, error) {
 	qo := &QueryOptions{}
 	opts := append(DefaultQueryOptions, options...)
 	for _, opt := range opts {
@@ -379,7 +379,7 @@ func (t *Table) queryWithArgs(namedQuery string, obj interface{}, options ...Que
 		return "", nil, err
 	}
 
-	args := []interface{}{}
+	args := []any{}
 	missing := []string{}
 
 	count := 0
@@ -413,7 +413,7 @@ func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
 
 // InsertQueryWithArgs generates an insert query for the table along with arguments
 // derived from the provided object.
-func (t *Table) InsertQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+func (t *Table) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
 	if err != nil {
 		return "", nil, err
@@ -434,7 +434,7 @@ func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 
 // UpdateQueryWithArgs generates an update query for the table along with arguments
 // derived from the provided object.
-func (t *Table) UpdateQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+func (t *Table) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.UpdateQuery(append(options, WithNamedParameters())...)
 	if err != nil {
 		return "", nil, err
@@ -455,7 +455,7 @@ func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 
 // DeleteQueryWithArgs generates a delete query for the table along with arguments
 // derived from the provided object.
-func (t *Table) DeleteQueryWithArgs(obj interface{}, options ...QueryOption) (string, []interface{}, error) {
+func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.DeleteQuery(append(options, WithNamedParameters())...)
 	if err != nil {
 		return "", nil, err

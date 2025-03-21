@@ -787,7 +787,7 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 func (s *TableTestSuite) TestTable_EvaluateErrors() {
 	tests := []struct {
 		name         string
-		obj          interface{}
+		obj          any
 		preparations func()
 		err          error
 	}{
@@ -1133,7 +1133,7 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 		name         string
 		queryOptions []morph.QueryOption
 		preparations func() TestModel
-		assertions   func(obj TestModel, query string, args []interface{}, err error)
+		assertions   func(obj TestModel, query string, args []any, err error)
 	}{
 		{
 			name:         "NoOptions",
@@ -1150,10 +1150,10 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES (?, ?, ?);", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name}, args)
 			},
 		},
 		{
@@ -1171,10 +1171,10 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($, $, $);", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name}, args)
 			},
 		},
 		{
@@ -1192,10 +1192,10 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("INSERT INTO test_models (created_at, id, name) VALUES ($1, $2, $3);", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID, *obj.Name}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name}, args)
 			},
 		},
 	}
@@ -1505,7 +1505,7 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 		name         string
 		queryOptions func(m TestModel) []morph.QueryOption
 		preparations func() TestModel
-		assertions   func(obj TestModel, query string, args []interface{}, err error)
+		assertions   func(obj TestModel, query string, args []any, err error)
 	}{
 		{
 			name:         "NoOptions",
@@ -1522,10 +1522,10 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), *obj.Name, obj.ID}, args)
 			},
 		},
 		{
@@ -1542,10 +1542,10 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("UPDATE test_models AS T SET T.created_at = ? WHERE 1=1 AND T.id = ?;", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), obj.ID}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID}, args)
 			},
 		},
 		{
@@ -1563,10 +1563,10 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), *obj.Name, obj.ID}, args)
 			},
 		},
 		{
@@ -1584,10 +1584,10 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.name = $2 WHERE 1=1 AND T.id = $3;", query)
-				s.ElementsMatch([]interface{}{obj.CreatedAt(), *obj.Name, obj.ID}, args)
+				s.ElementsMatch([]any{obj.CreatedAt(), *obj.Name, obj.ID}, args)
 			},
 		},
 	}
@@ -1859,7 +1859,7 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 		name         string
 		queryOptions []morph.QueryOption
 		preparations func() TestModel
-		assertions   func(obj TestModel, query string, args []interface{}, err error)
+		assertions   func(obj TestModel, query string, args []any, err error)
 	}{
 		{
 			name:         "NoOptions",
@@ -1876,10 +1876,10 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = ?;", query)
-				s.ElementsMatch([]interface{}{obj.ID}, args)
+				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
 		{
@@ -1897,10 +1897,10 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $;", query)
-				s.ElementsMatch([]interface{}{obj.ID}, args)
+				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
 		{
@@ -1918,10 +1918,10 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					},
 				}
 			},
-			assertions: func(obj TestModel, query string, args []interface{}, err error) {
+			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
 				s.Equal("DELETE FROM test_models WHERE 1=1 AND id = $1;", query)
-				s.ElementsMatch([]interface{}{obj.ID}, args)
+				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
 	}
