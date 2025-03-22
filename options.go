@@ -288,7 +288,7 @@ var (
 
 	// WithPrimaryKeyColumns specifies the names of the column that acts together as
 	// the primary key.
-	WithPrimaryKeyColumns = func(names []string) ReflectOption {
+	WithPrimaryKeyColumns = func(names ...string) ReflectOption {
 		return func(c *ReflectConfiguration) {
 			if c.PrimaryKeyColumns == nil {
 				c.PrimaryKeyColumns = []string{}

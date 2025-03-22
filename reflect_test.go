@@ -1566,7 +1566,7 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 		{
 			name:    "WithPrimaryKeyColumns",
 			obj:     s.objPtr,
-			options: []morph.ReflectOption{morph.WithPrimaryKeyColumns([]string{"id", "created_at"})},
+			options: []morph.ReflectOption{morph.WithPrimaryKeyColumns("id", "created_at")},
 			expected: func() morph.Table {
 				t := morph.Table{}
 				t.SetType(s.objPtr)

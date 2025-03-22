@@ -79,7 +79,7 @@ func BenchmarkReflect_WithPrimaryKeyColumn(b *testing.B) {
 
 func BenchmarkReflect_WithPrimaryKeyColumns(b *testing.B) {
 	for b.Loop() {
-		_, err := morph.Reflect(millenniumFalcon, morph.WithPrimaryKeyColumns([]string{"ID"}))
+		_, err := morph.Reflect(millenniumFalcon, morph.WithPrimaryKeyColumns("ID"))
 		if err != nil {
 			b.FailNow()
 		}
