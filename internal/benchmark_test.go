@@ -235,6 +235,48 @@ func BenchmarkTableDeleteQuery_WithNamedParameters(b *testing.B) {
 	}
 }
 
+func BenchmarkTableSelectQuery_DefaultOptions(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, err := table.SelectQuery()
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTableSelectQuery_WithPlaceholder(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, err := table.SelectQuery(morph.WithPlaceholder("$", true))
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTableSelectQuery_WithNamedParameters(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, err := table.SelectQuery(morph.WithNamedParameters())
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
 func BenchmarkTableMustInsertQuery_DefaultOptions(b *testing.B) {
 	table, err := morph.Reflect(millenniumFalcon)
 	if err != nil {
@@ -342,6 +384,39 @@ func BenchmarkTableMustDeleteQuery_WithNamedParameters(b *testing.B) {
 
 	for b.Loop() {
 		table.MustDeleteQuery(morph.WithNamedParameters())
+	}
+}
+
+func BenchmarkTableMustSelectQuery_DefaultOptions(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		table.MustSelectQuery()
+	}
+}
+
+func BenchmarkTableMustSelectQuery_WithPlaceholder(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		table.MustSelectQuery(morph.WithPlaceholder("$", true))
+	}
+}
+
+func BenchmarkTableMustSelectQuery_WithNamedParameters(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		table.MustSelectQuery(morph.WithNamedParameters())
 	}
 }
 
@@ -479,6 +554,48 @@ func BenchmarkTableDeleteQueryWithArgs_WithNamedParameters(b *testing.B) {
 
 	for b.Loop() {
 		_, _, err := table.DeleteQueryWithArgs(millenniumFalcon, morph.WithNamedParameters())
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTableSelectQueryWithArgs_DefaultOptions(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, _, err := table.SelectQueryWithArgs(millenniumFalcon)
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTableSelectQueryWithArgs_WithPlaceholder(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, _, err := table.SelectQueryWithArgs(millenniumFalcon, morph.WithPlaceholder("$", true))
+		if err != nil {
+			b.FailNow()
+		}
+	}
+}
+
+func BenchmarkTableSelectQueryWithArgs_WithNamedParameters(b *testing.B) {
+	table, err := morph.Reflect(millenniumFalcon)
+	if err != nil {
+		b.FailNow()
+	}
+
+	for b.Loop() {
+		_, _, err := table.SelectQueryWithArgs(millenniumFalcon, morph.WithNamedParameters())
 		if err != nil {
 			b.FailNow()
 		}
