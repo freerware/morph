@@ -143,13 +143,13 @@ var (
 		},
 	}
 
-	// insertTmpl is the parsed template used to generate an insert query.
+	// insertTmpl is the parsed template used to generate an INSERT query.
 	insertTmpl = template.Must(template.New("insertQuery").Funcs(funcs).Parse(insertSQL))
 
-	// updateTmpl is the parsed template used to generate an update query.
+	// updateTmpl is the parsed template used to generate an UPDATE query.
 	updateTmpl = template.Must(template.New("updateQuery").Funcs(funcs).Parse(updateSQL))
 
-	// deleteTmpl is the parsed template used to generate a delete query.
+	// deleteTmpl is the parsed template used to generate a DELETE query.
 	deleteTmpl = template.Must(template.New("deleteQuery").Funcs(funcs).Parse(deleteSQL))
 
 	// selectTmpl is the parsed template used to generate a SELECT query.

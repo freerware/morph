@@ -406,12 +406,12 @@ func (t *Table) queryWithArgs(namedQuery string, obj any, options ...QueryOption
 	return query, args, nil
 }
 
-// InsertQuery generates an insert query for the table.
+// InsertQuery generates an INSERT query for the table.
 func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
 	return t.query(insertTmpl, options...)
 }
 
-// InsertQueryWithArgs generates an insert query for the table along with arguments
+// InsertQueryWithArgs generates an INSERT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
@@ -427,12 +427,12 @@ func (t *Table) MustInsertQuery(options ...QueryOption) string {
 	return Must(t.InsertQuery(options...))
 }
 
-// UpdateQuery generates an update query for the table.
+// UpdateQuery generates an UPDATE query for the table.
 func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 	return t.query(updateTmpl, options...)
 }
 
-// UpdateQueryWithArgs generates an update query for the table along with arguments
+// UpdateQueryWithArgs generates an UPDATE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.UpdateQuery(append(options, WithNamedParameters())...)
@@ -448,12 +448,12 @@ func (t *Table) MustUpdateQuery(options ...QueryOption) string {
 	return Must(t.UpdateQuery(options...))
 }
 
-// DeleteQuery generates a delete query for the table.
+// DeleteQuery generates a DELETE query for the table.
 func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 	return t.query(deleteTmpl, options...)
 }
 
-// DeleteQueryWithArgs generates a delete query for the table along with arguments
+// DeleteQueryWithArgs generates a DELETE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	query, err := t.DeleteQuery(append(options, WithNamedParameters())...)
