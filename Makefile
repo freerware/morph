@@ -8,3 +8,6 @@ bins:
 
 tests: bins
 	go test -v -race -covermode=atomic -coverprofile=morph.coverprofile
+
+benchmarks: bins
+	go test -C internal -run XXX -bench=.
