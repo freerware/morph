@@ -468,3 +468,24 @@ func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []
 func (t *Table) MustDeleteQuery(options ...QueryOption) string {
 	return Must(t.DeleteQuery(options...))
 }
+
+// SelectQuery generates a SELECT query for the table.
+func (t *Table) SelectQuery(options ...QueryOption) (string, error) {
+	return t.query(selectTmpl, options...)
+}
+
+// SelectQueryWithArgs generates a SELECT query for the table along with arguments
+// derived from the provided object.
+func (t *Table) SelectQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
+	query, err := t.SelectQuery(append(options, WithNamedParameters())...)
+	if err != nil {
+		return "", nil, err
+	}
+
+	return t.queryWithArgs(query, obj, options...)
+}
+
+// MustSelectQuery performs the same operation as SelectQuery but panics if an error occurs.
+func (t *Table) MustSelectQuery(options ...QueryOption) string {
+	return Must(t.SelectQuery(options...))
+}

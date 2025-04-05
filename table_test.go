@@ -1956,6 +1956,331 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs_InvalidTable() {
 	s.Empty(args)
 }
 
+func (s *TableTestSuite) TestTable_SelectQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, err := s.sut.SelectQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_MustSelectQuery_InvalidTable() {
+	// action + assert.
+	s.Panics(func() { s.sut.MustSelectQuery() })
+}
+
+func (s *TableTestSuite) TestTable_MustSelectQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query := s.sut.MustSelectQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []any, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT created_at, id, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			// action.
+			query, args, err := s.sut.SelectQueryWithArgs(model, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_SelectQueryWithArgs_InvalidTable() {
+	// action.
+	query, args, err := s.sut.SelectQueryWithArgs(&TestModel{})
+
+	// assert.
+	s.Error(err)
+	s.Empty(query)
+	s.Empty(args)
+}
+
 func (s *TableTestSuite) TestTable_EvaluationResults_Empties() {
 	// arrange.
 	m := AnotherTestModel{

@@ -98,6 +98,19 @@ const deleteSQL = `
     {{- $seq = add $seq 1 }} AND {{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
+const selectSQL = `
+  {{- $table := .Table -}}
+  {{- $options := .Options -}}
+  {{- $seq := 0 -}}
+  SELECT {{- if true}} {{end}}
+  {{- range $idx, $col := $table.Columns -}}
+    {{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
+  {{- end -}}
+  {{- if true}} {{end -}} FROM {{$table.Name}} AS {{$table.Alias}} WHERE 1=1
+  {{- range $idx, $col := .PrimaryKeys -}}
+    {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
+  {{- end -}};`
+
 var (
 	// funcs defines the custom functions leveraged within the query templates.
 	funcs = template.FuncMap{
@@ -138,4 +151,7 @@ var (
 
 	// deleteTmpl is the parsed template used to generate a delete query.
 	deleteTmpl = template.Must(template.New("deleteQuery").Funcs(funcs).Parse(deleteSQL))
+
+	// selectTmpl is the parsed template used to generate a SELECT query.
+	selectTmpl = template.Must(template.New("selectQuery").Funcs(funcs).Parse(selectSQL))
 )
