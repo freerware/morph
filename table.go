@@ -414,12 +414,13 @@ func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
 // InsertQueryWithArgs generates an INSERT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
-	query, err := t.InsertQuery(append(options, WithNamedParameters())...)
+	opts := append(options, WithNamedParameters())
+	query, err := t.InsertQuery(opts...)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return t.queryWithArgs(query, obj, options...)
+	return t.queryWithArgs(query, obj, opts...)
 }
 
 // MustInsertQuery performs the same operation as InsertQuery but panics if an error occurs.
@@ -435,12 +436,13 @@ func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
 // UpdateQueryWithArgs generates an UPDATE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
-	query, err := t.UpdateQuery(append(options, WithNamedParameters())...)
+	opts := append(options, WithNamedParameters())
+	query, err := t.UpdateQuery(opts...)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return t.queryWithArgs(query, obj, options...)
+	return t.queryWithArgs(query, obj, opts...)
 }
 
 // MustUpdateQuery performs the same operation as UpdateQuery but panics if an error occurs.
@@ -456,12 +458,13 @@ func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
 // DeleteQueryWithArgs generates a DELETE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
-	query, err := t.DeleteQuery(append(options, WithNamedParameters())...)
+	opts := append(options, WithNamedParameters())
+	query, err := t.DeleteQuery(opts...)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return t.queryWithArgs(query, obj, options...)
+	return t.queryWithArgs(query, obj, opts...)
 }
 
 // MustDeleteQuery performs the same operation as DeleteQuery but panics if an error occurs.
@@ -477,12 +480,13 @@ func (t *Table) SelectQuery(options ...QueryOption) (string, error) {
 // SelectQueryWithArgs generates a SELECT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) SelectQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
-	query, err := t.SelectQuery(append(options, WithNamedParameters())...)
+	opts := append(options, WithNamedParameters())
+	query, err := t.SelectQuery(opts...)
 	if err != nil {
 		return "", nil, err
 	}
 
-	return t.queryWithArgs(query, obj, options...)
+	return t.queryWithArgs(query, obj, opts...)
 }
 
 // MustSelectQuery performs the same operation as SelectQuery but panics if an error occurs.
