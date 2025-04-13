@@ -76,7 +76,7 @@ const updateSQL = `
   {{- $options := .Options -}}
   {{- $seq := 0 -}}
   {{- $data := .Data -}}
-  {{- $nonPrimaryKeys := .NonPrimaryKeys -}}
+  {{- $nonPrimaryKeys := .NonKeys -}}
   UPDATE {{$table.Name}} AS {{$table.Alias}} SET {{- if true}} {{end}}
   {{- range $idx, $col := $nonPrimaryKeys -}}
     {{- if omit $data $col.Name -}} {{continue}} {{- end -}}
@@ -84,7 +84,7 @@ const updateSQL = `
     {{- $seq = add $seq 1 -}}
     {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
   {{- end }} WHERE 1=1
-  {{- range $idx, $col := .PrimaryKeys -}}
+  {{- range $idx, $col := .Key -}}
     {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
@@ -94,7 +94,7 @@ const deleteSQL = `
   {{- $options := .Options -}}
   {{- $seq := 0 -}}
   DELETE FROM {{$table.Name}} WHERE 1=1
-  {{- range $idx, $col := .PrimaryKeys -}}
+  {{- range $idx, $col := .Key -}}
     {{- $seq = add $seq 1 }} AND {{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
@@ -107,7 +107,7 @@ const selectSQL = `
     {{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
   {{- end -}}
   {{- if true}} {{end -}} FROM {{$table.Name}} AS {{$table.Alias}} WHERE 1=1
-  {{- range $idx, $col := .PrimaryKeys -}}
+  {{- range $idx, $col := .Key -}}
     {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
   {{- end -}};`
 
