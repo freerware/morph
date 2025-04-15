@@ -1,7 +1,6 @@
 package morph
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"reflect"
@@ -9,7 +8,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"text/template"
 )
 
 // Defines the various errors that can occur when interacting with tables.
@@ -229,6 +227,20 @@ func (t *Table) ColumnNames() []string {
 	return names
 }
 
+// PrimaryKeyColumns retrieves all of the primary key columns for the table.
+func (t *Table) PrimaryKeyColumns() []Column {
+	return t.FindColumns(func(c Column) bool {
+		return c.PrimaryKey()
+	})
+}
+
+// NonPrimaryKeyColumns retrieves all of the non-primary key columns for the table.
+func (t *Table) NonPrimaryKeyColumns() []Column {
+	return t.FindColumns(func(c Column) bool {
+		return !c.PrimaryKey()
+	})
+}
+
 // ColumnName retrieves the column name associated to the provide field name.
 func (t *Table) ColumnName(field string) (string, error) {
 	if t.columnsByField == nil {
@@ -433,101 +445,18 @@ func (t *Table) validate() error {
 	return nil
 }
 
-// query generates a query for the table using the provided template and options.
-func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, error) {
-	if err := t.validate(); err != nil {
-		return "", err
-	}
-
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
-
-	data := struct {
-		Table   *Table
-		Key     []Column
-		NonKeys []Column
-		Options *QueryOptions
-		Data    EvaluationResult
-	}{
-		Table:   t,
-		Options: qo,
-		Key:     t.FindColumns(func(c Column) bool { return c.PrimaryKey() }),
-		NonKeys: t.FindColumns(func(c Column) bool { return !c.PrimaryKey() }),
-	}
-
-	if qo.OmitEmpty && qo.obj != nil {
-		var err error
-		if data.Data, err = t.Evaluate(qo.obj); err != nil {
-			return "", err
-		}
-	}
-
-	buf := new(bytes.Buffer)
-	err := tmpl.Execute(buf, data)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func (t *Table) queryWithArgs(namedQuery string, obj any, options ...QueryOption) (string, []any, error) {
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
-
-	result, err := t.Evaluate(obj)
-	if err != nil {
-		return "", nil, err
-	}
-
-	args := []any{}
-	missing := []string{}
-
-	count := 0
-	query := namedParamRegExp.ReplaceAllStringFunc(namedQuery, func(match string) string {
-		name := match[1:]
-
-		if arg, ok := result[name]; ok {
-			args = append(args, arg)
-			if qo.Ordered {
-				count += 1
-				return qo.Placeholder + fmt.Sprintf("%d", count)
-			}
-			return qo.Placeholder
-		}
-
-		missing = append(missing, name)
-		return match
-	})
-
-	if len(missing) > 0 {
-		return "", nil, errors.New("morph: missing values for named parameters: " + strings.Join(missing, ", "))
-	}
-
-	return query, args, nil
-}
-
 // InsertQuery generates an INSERT query for the table.
 func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
-	return t.query(insertTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(insertTmpl, options...)
 }
 
 // InsertQueryWithArgs generates an INSERT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.InsertQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.InsertQueryWithArgs(obj, opts...)
 }
 
 // MustInsertQuery performs the same operation as InsertQuery but panics if an error occurs.
@@ -537,19 +466,16 @@ func (t *Table) MustInsertQuery(options ...QueryOption) string {
 
 // UpdateQuery generates an UPDATE query for the table.
 func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
-	return t.query(updateTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(updateTmpl, options...)
 }
 
 // UpdateQueryWithArgs generates an UPDATE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.UpdateQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.UpdateQueryWithArgs(obj, opts...)
 }
 
 // MustUpdateQuery performs the same operation as UpdateQuery but panics if an error occurs.
@@ -559,19 +485,16 @@ func (t *Table) MustUpdateQuery(options ...QueryOption) string {
 
 // DeleteQuery generates a DELETE query for the table.
 func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
-	return t.query(deleteTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(deleteTmpl, options...)
 }
 
 // DeleteQueryWithArgs generates a DELETE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.DeleteQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.DeleteQueryWithArgs(obj, opts...)
 }
 
 // MustDeleteQuery performs the same operation as DeleteQuery but panics if an error occurs.
@@ -581,19 +504,16 @@ func (t *Table) MustDeleteQuery(options ...QueryOption) string {
 
 // SelectQuery generates a SELECT query for the table.
 func (t *Table) SelectQuery(options ...QueryOption) (string, error) {
-	return t.query(selectTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(selectTmpl, options...)
 }
 
 // SelectQueryWithArgs generates a SELECT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) SelectQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.SelectQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.SelectQueryWithArgs(obj, opts...)
 }
 
 // MustSelectQuery performs the same operation as SelectQuery but panics if an error occurs.

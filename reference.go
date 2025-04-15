@@ -1,12 +1,7 @@
 package morph
 
 import (
-	"bytes"
-	"errors"
-	"fmt"
 	"slices"
-	"strings"
-	"text/template"
 )
 
 // Reference represents a reference between two tables via a foreign key.
@@ -33,6 +28,15 @@ func (r *Reference) ForeignKey() []Column {
 	return key
 }
 
+// NonForeignKeyColumns returns the non-foreign key columns of the child table.
+func (r Reference) NonForeignKeyColumns() []Column {
+	return r.child.FindColumns(func(c Column) bool {
+		return !slices.ContainsFunc(r.foreignKey, func(fk Column) bool {
+			return fk.equals(c)
+		})
+	})
+}
+
 // equal checks if two references are equal.
 func (r Reference) equals(other Reference) bool {
 	sameParent := r.Parent().Equals(other.Parent())
@@ -44,110 +48,50 @@ func (r Reference) equals(other Reference) bool {
 	return sameParent && sameChild && sameForeignKey
 }
 
-// query generates a query for the table using the provided template and options.
-func (r *Reference) query(tmpl *template.Template, options ...QueryOption) (string, error) {
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
-
-	data := struct {
-		Table   *Table
-		Key     []Column
-		NonKeys []Column
-		Options *QueryOptions
-		Data    EvaluationResult
-	}{
-		Table:   &r.child,
-		Options: qo,
-		Key:     r.foreignKey,
-		NonKeys: r.child.FindColumns(func(c Column) bool { return !c.PrimaryKey() }),
-	}
-
-	if qo.OmitEmpty && qo.obj != nil {
-		var err error
-		if data.Data, err = r.child.Evaluate(qo.obj); err != nil {
-			return "", err
-		}
-	}
-
-	buf := new(bytes.Buffer)
-	err := tmpl.Execute(buf, data)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
+// InsertQuery generates an INSERT query for the reference.
+func (r *Reference) InsertQuery(options ...QueryOption) (string, error) {
+	return r.child.InsertQuery(options...)
 }
 
-func (r *Reference) queryWithArgs(namedQuery string, obj any, options ...QueryOption) (string, []any, error) {
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
+// InsertQueryWithArgs generates an INSERT query for the reference along with arguments
+// derived from the provided object.
+func (r *Reference) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
+	return r.child.InsertQueryWithArgs(obj, options...)
+}
 
-	result, err := r.child.Evaluate(obj)
-	if err != nil {
-		return "", nil, err
-	}
+// UpdateQuery generates an UPDATE query for the reference.
+func (r *Reference) UpdateQuery(options ...QueryOption) (string, error) {
+	return r.child.UpdateQuery(options...)
+}
 
-	args := []any{}
-	missing := []string{}
-
-	count := 0
-	query := namedParamRegExp.ReplaceAllStringFunc(namedQuery, func(match string) string {
-		name := match[1:]
-
-		if arg, ok := result[name]; ok {
-			args = append(args, arg)
-			if qo.Ordered {
-				count += 1
-				return qo.Placeholder + fmt.Sprintf("%d", count)
-			}
-			return qo.Placeholder
-		}
-
-		missing = append(missing, name)
-		return match
-	})
-
-	if len(missing) > 0 {
-		return "", nil, errors.New("morph: missing values for named parameters: " + strings.Join(missing, ", "))
-	}
-
-	return query, args, nil
+// UpdateQueryWithArgs generates an UPDATE query for the reference along with arguments
+// derived from the provided object.
+func (r *Reference) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
+	return r.child.UpdateQueryWithArgs(obj, options...)
 }
 
 // SelectQuery generates a SELECT query for the reference.
 func (r *Reference) SelectQuery(options ...QueryOption) (string, error) {
-	return r.query(selectTmpl, options...)
+	generator := newQueryGenerator(&r.child, r.ForeignKey(), r.NonForeignKeyColumns())
+	return generator.SelectQuery(options...)
 }
 
 // SelectQueryWithArgs generates a SELECT query with arguments for the reference.
 func (r *Reference) SelectQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := r.SelectQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return r.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(&r.child, r.ForeignKey(), r.NonForeignKeyColumns())
+	return generator.SelectQueryWithArgs(obj, opts...)
 }
 
 // DeleteQuery generates a DELETE query for the reference.
 func (r *Reference) DeleteQuery(options ...QueryOption) (string, error) {
-	return r.query(deleteTmpl, options...)
+	generator := newQueryGenerator(&r.child, r.ForeignKey(), r.NonForeignKeyColumns())
+	return generator.DeleteQuery(options...)
 }
 
 // DeleteQueryWithArgs generates a DELETE query with arguments for the reference.
 func (r *Reference) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := r.DeleteQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return r.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(&r.child, r.ForeignKey(), r.NonForeignKeyColumns())
+	return generator.DeleteQueryWithArgs(obj, opts...)
 }
