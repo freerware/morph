@@ -27,6 +27,145 @@ func (s *TableTestSuite) SetupSubTest() {
 	s.sut = morph.Table{}
 }
 
+func (s *TableTestSuite) TestTable_References_InvalidChildTable() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	var child morph.Table
+
+	// action.
+	ref, err := child.References(&s.sut)
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_InvalidParentTable() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+	// action.
+	ref, err := child.References(&s.sut, key...)
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_MissingForeignKeyColumns() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	usernameField := "Username"
+	usernameColumnName := "username"
+	usernameColumn := morph.Column{}
+	usernameColumn.SetField(usernameField)
+	usernameColumn.SetName(usernameColumnName)
+
+	// action.
+	ref, err := child.References(&s.sut, []morph.Column{usernameColumn}...)
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_EnforcesUniqueness() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	tables := child.ReferencesTo()
+
+	// assert.
+	s.Require().Len(tables, 1)
+	s.True(tables[0].Equals(s.sut))
+}
+
 func (s *TableTestSuite) TestTable_IsReferenced_WithReference() {
 	// arrange.
 	name := "test"
