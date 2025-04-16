@@ -53,7 +53,9 @@ func (s *TableTestSuite) TestTable_IsReferenced_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	referenced := s.sut.IsReferenced()
@@ -115,7 +117,9 @@ func (s *TableTestSuite) TestTable_ReferenceTo_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	ref, err := child.ReferenceTo(s.sut)
@@ -186,7 +190,9 @@ func (s *TableTestSuite) TestTable_HasReferenceTo_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	references := child.HasReferenceTo(s.sut)
@@ -253,7 +259,9 @@ func (s *TableTestSuite) TestTable_ReferencesTo_WithReferences() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	tables := child.ReferencesTo()
@@ -321,7 +329,9 @@ func (s *TableTestSuite) TestTable_ReferencedBy_WithReferences() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	tables := s.sut.ReferencedBy()
@@ -384,7 +394,9 @@ func (s *TableTestSuite) TestTable_IsReferencedBy_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	child.References(&s.sut, key...)
+	if _, err := child.References(&s.sut, key...); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
 
 	// action.
 	referenced := s.sut.IsReferencedBy(child)
