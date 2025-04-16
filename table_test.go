@@ -50,7 +50,7 @@ func (s *TableTestSuite) TestTable_References_InvalidChildTable() {
 	var child morph.Table
 
 	// action.
-	ref, err := child.References(&s.sut)
+	ref, err := child.References(&s.sut, []morph.Column{})
 
 	// assert.
 	s.Require().Error(err)
@@ -79,7 +79,7 @@ func (s *TableTestSuite) TestTable_References_InvalidParentTable() {
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
 
 	// action.
-	ref, err := child.References(&s.sut, key...)
+	ref, err := child.References(&s.sut, key)
 
 	// assert.
 	s.Require().Error(err)
@@ -118,7 +118,7 @@ func (s *TableTestSuite) TestTable_References_MissingForeignKeyColumns() {
 	usernameColumn.SetName(usernameColumnName)
 
 	// action.
-	ref, err := child.References(&s.sut, []morph.Column{usernameColumn}...)
+	ref, err := child.References(&s.sut, []morph.Column{usernameColumn})
 
 	// assert.
 	s.Require().Error(err)
@@ -151,10 +151,10 @@ func (s *TableTestSuite) TestTable_References_EnforcesUniqueness() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -192,7 +192,7 @@ func (s *TableTestSuite) TestTable_IsReferenced_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -256,7 +256,7 @@ func (s *TableTestSuite) TestTable_ReferenceTo_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -329,7 +329,7 @@ func (s *TableTestSuite) TestTable_HasReferenceTo_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -398,7 +398,7 @@ func (s *TableTestSuite) TestTable_ReferencesTo_WithReferences() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -468,7 +468,7 @@ func (s *TableTestSuite) TestTable_ReferencedBy_WithReferences() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -533,7 +533,7 @@ func (s *TableTestSuite) TestTable_IsReferencedBy_WithReference() {
 	}
 
 	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-	if _, err := child.References(&s.sut, key...); err != nil {
+	if _, err := child.References(&s.sut, key); err != nil {
 		s.FailNow("unable to establish reference to table", err)
 	}
 
@@ -1902,7 +1902,7 @@ func (s *TableTestSuite) TestTable_References_InsertQuery() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -2009,7 +2009,7 @@ func (s *TableTestSuite) TestTable_References_InsertQueryWithArgs() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -2550,7 +2550,7 @@ func (s *TableTestSuite) TestTable_References_UpdateQuery() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -2657,7 +2657,7 @@ func (s *TableTestSuite) TestTable_References_UpdateQueryWithArgs() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -3127,7 +3127,7 @@ func (s *TableTestSuite) TestTable_References_DeleteQuery() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -3234,7 +3234,7 @@ func (s *TableTestSuite) TestTable_References_DeleteQueryWithArgs() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -3695,7 +3695,7 @@ func (s *TableTestSuite) TestTable_References_SelectQuery() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -3802,7 +3802,7 @@ func (s *TableTestSuite) TestTable_References_SelectQueryWithArgs() {
 			}
 
 			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
-			ref, err := child.References(&parent, key...)
+			ref, err := child.References(&parent, key)
 			if err != nil {
 				s.FailNow("unable to create reference between parent and child tables", err)
 			}
@@ -3886,7 +3886,7 @@ func (s *TableTestSuite) TestTable_FindReferences() {
 			preparations: func(child, parent *morph.Table) {
 				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
 
-				_, err := child.References(parent, key...)
+				_, err := child.References(parent, key)
 				if err != nil {
 					s.FailNow("unable to create reference between parent and child tables", err)
 				}
@@ -3903,7 +3903,7 @@ func (s *TableTestSuite) TestTable_FindReferences() {
 			preparations: func(child, parent *morph.Table) {
 				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
 
-				_, err := child.References(parent, key...)
+				_, err := child.References(parent, key)
 				if err != nil {
 					s.FailNow("unable to create reference between parent and child tables", err)
 				}
@@ -3983,7 +3983,7 @@ func (s *TableTestSuite) TestTable_FindReference() {
 			preparations: func(child, parent *morph.Table) {
 				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
 
-				_, err := child.References(parent, key...)
+				_, err := child.References(parent, key)
 				if err != nil {
 					s.FailNow("unable to create reference between parent and child tables", err)
 				}
@@ -4001,7 +4001,7 @@ func (s *TableTestSuite) TestTable_FindReference() {
 			preparations: func(child, parent *morph.Table) {
 				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
 
-				_, err := child.References(parent, key...)
+				_, err := child.References(parent, key)
 				if err != nil {
 					s.FailNow("unable to create reference between parent and child tables", err)
 				}

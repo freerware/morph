@@ -523,7 +523,7 @@ func (t *Table) MustSelectQuery(options ...QueryOption) string {
 
 // References creates a reference between two tables, where the provided table
 // is treated as the parent and the current table is treated as the child.
-func (t *Table) References(table *Table, key ...Column) (Reference, error) {
+func (t *Table) References(table *Table, key []Column) (Reference, error) {
 	if err := t.validate(); err != nil {
 		return Reference{}, err
 	}
@@ -549,7 +549,7 @@ func (t *Table) References(table *Table, key ...Column) (Reference, error) {
 	return Reference{parent: *table, child: *t, foreignKey: key}, nil
 }
 
-// equal checks if two tables are equal.
+// Equals checks if two tables are equal.
 func (t Table) Equals(other Table) bool {
 	sameTypeName := t.TypeName() == other.TypeName()
 	sameName := t.Name() == other.Name()
