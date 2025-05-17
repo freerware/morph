@@ -9,9 +9,10 @@ import (
 )
 
 type TestModel struct {
-	ID      int `db:"identifier"`
-	Name    *string
-	Another AnotherTestModel
+	ID          int `db:"identifier"`
+	Name        *string
+	Another     AnotherTestModel
+	MaybeIgnore bool `db:"-"`
 }
 
 func (t *TestModel) CreatedAt() time.Time {
@@ -108,7 +109,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -145,7 +152,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -182,7 +195,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -219,7 +238,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -256,7 +281,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -293,7 +324,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -330,7 +367,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -367,7 +410,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -407,7 +456,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MAYBE_IGNORE")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -447,7 +502,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MAYBEIGNORE")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -484,7 +545,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybeignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -521,7 +588,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MaybeIgnore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -558,7 +631,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -595,7 +674,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -662,7 +747,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -693,7 +784,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -724,7 +821,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -755,7 +858,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -794,7 +903,13 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -870,7 +985,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -907,7 +1028,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -944,7 +1071,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -981,7 +1114,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1018,7 +1157,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1055,7 +1200,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1092,7 +1243,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1129,7 +1286,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1169,7 +1332,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MAYBE_IGNORE")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1209,7 +1378,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MAYBEIGNORE")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1246,7 +1421,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybeignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1283,7 +1464,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("MaybeIgnore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1320,7 +1507,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1357,7 +1550,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1425,7 +1624,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1456,7 +1661,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				nameColumn.SetStrategy(morph.FieldStrategyStructField)
 				nameColumn.SetFieldType("*string")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1487,7 +1698,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1518,7 +1735,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1557,7 +1780,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1596,7 +1825,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1635,7 +1870,13 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var maybeIgnoreColumn morph.Column
+				maybeIgnoreColumn.SetName("maybe_ignore")
+				maybeIgnoreColumn.SetField("MaybeIgnore")
+				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
+				maybeIgnoreColumn.SetFieldType("bool")
+
+				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
