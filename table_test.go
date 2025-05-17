@@ -1988,7 +1988,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -2008,7 +2008,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -2028,7 +2028,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 			},
 		},
 		{
@@ -2048,7 +2048,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -2102,7 +2102,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -2122,7 +2122,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -2142,7 +2142,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 			},
 		},
 		{
@@ -2162,7 +2162,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -2211,7 +2211,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -2232,7 +2232,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -2253,7 +2253,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT created_at, id, maybe_ignore, name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},

@@ -104,7 +104,7 @@ const selectSQL = `
   {{- $seq := 0 -}}
   SELECT {{- if true}} {{end}}
   {{- range $idx, $col := $table.Columns -}}
-    {{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
+    {{$table.Alias}}.{{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
   {{- end -}}
   {{- if true}} {{end -}} FROM {{$table.Name}} AS {{$table.Alias}} WHERE 1=1
   {{- range $idx, $col := .PrimaryKeys -}}
