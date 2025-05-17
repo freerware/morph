@@ -120,7 +120,10 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 
 		var tagValue string
 		if c.HasTag() {
-			tagValue = field.Tag.Get(*c.Tag)
+			tagValue = strings.TrimSpace(field.Tag.Get(*c.Tag))
+			if tagValue == "-" {
+				continue
+			}
 		}
 
 		if c.HasFieldExclusionPattern() {
