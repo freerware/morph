@@ -27,6 +27,555 @@ func (s *TableTestSuite) SetupSubTest() {
 	s.sut = morph.Table{}
 }
 
+func (s *TableTestSuite) TestTable_References_InvalidChildTable() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	var child morph.Table
+
+	// action.
+	ref, err := child.References(&s.sut, []morph.Column{})
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_InvalidParentTable() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+	// action.
+	ref, err := child.References(&s.sut, key)
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_MissingForeignKeyColumns() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	usernameField := "Username"
+	usernameColumnName := "username"
+	usernameColumn := morph.Column{}
+	usernameColumn.SetField(usernameField)
+	usernameColumn.SetName(usernameColumnName)
+
+	// action.
+	ref, err := child.References(&s.sut, []morph.Column{usernameColumn})
+
+	// assert.
+	s.Require().Error(err)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_References_EnforcesUniqueness() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	tables := child.ReferencesTo()
+
+	// assert.
+	s.Require().Len(tables, 1)
+	s.True(tables[0].Equals(s.sut))
+}
+
+func (s *TableTestSuite) TestTable_IsReferenced_WithReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	referenced := s.sut.IsReferenced()
+
+	// assert.
+	s.True(referenced)
+}
+
+func (s *TableTestSuite) TestTable_IsReferenced_WithoutReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	referenced := s.sut.IsReferenced()
+
+	// assert.
+	s.False(referenced)
+}
+
+func (s *TableTestSuite) TestTable_ReferenceTo_WithReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	ref, err := child.ReferenceTo(s.sut)
+
+	// assert.
+	s.Require().NoError(err)
+	s.True(ref.Child().Equals(child))
+	s.True(ref.Parent().Equals(s.sut))
+	s.Equal(child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" }), ref.ForeignKey())
+}
+
+func (s *TableTestSuite) TestTable_ReferenceTo_WithoutReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	ref, err := child.ReferenceTo(s.sut)
+
+	// assert.
+	s.ErrorIs(err, morph.ErrMissingReference)
+	s.Empty(ref)
+}
+
+func (s *TableTestSuite) TestTable_HasReferenceTo_WithReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	references := child.HasReferenceTo(s.sut)
+
+	// assert.
+	s.True(references)
+}
+
+func (s *TableTestSuite) TestTable_HasReferenceTo_WithoutReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	references := child.HasReferenceTo(s.sut)
+
+	// assert.
+	s.False(references)
+}
+
+func (s *TableTestSuite) TestTable_ReferencesTo_WithReferences() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	tables := child.ReferencesTo()
+
+	// assert.
+	s.Len(tables, 1)
+	s.True(tables[0].Equals(s.sut))
+}
+
+func (s *TableTestSuite) TestTable_ReferencesTo_WithoutReferences() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	tables := child.ReferencesTo()
+
+	// assert.
+	s.Len(tables, 0)
+}
+
+func (s *TableTestSuite) TestTable_ReferencedBy_WithReferences() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	tables := s.sut.ReferencedBy()
+
+	// assert.
+	s.Len(tables, 1)
+	s.True(tables[0].Equals(child))
+}
+
+func (s *TableTestSuite) TestTable_ReferencedBy_WithoutReferences() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	tables := s.sut.ReferencedBy()
+
+	// assert.
+	s.Len(tables, 0)
+}
+
+func (s *TableTestSuite) TestTable_IsReferencedBy_WithReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+	if _, err := child.References(&s.sut, key); err != nil {
+		s.FailNow("unable to establish reference to table", err)
+	}
+
+	// action.
+	referenced := s.sut.IsReferencedBy(child)
+
+	// assert.
+	s.True(referenced)
+}
+
+func (s *TableTestSuite) TestTable_IsReferencedBy_WithoutReference() {
+	// arrange.
+	name := "test"
+	model := TestModel{
+		ID:   1,
+		Name: &name,
+		Another: AnotherTestModel{
+			ModelID:     1,
+			ID:          2,
+			Title:       "another",
+			Description: nil,
+		},
+	}
+
+	var err error
+	s.sut, err = morph.Reflect(&model)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	child, err := morph.Reflect(&model.Another)
+	if err != nil {
+		s.FailNow("unable to reflect in test", err)
+	}
+
+	// action.
+	referenced := s.sut.IsReferencedBy(child)
+
+	// assert.
+	s.False(referenced)
+}
+
 func (s *TableTestSuite) TestTable_TypeName() {
 	// arrange.
 	expectedTypeName := "example.User"
@@ -342,6 +891,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						ID:          2,
 						Title:       "another",
 						Description: nil,
+						ModelID:     1,
 					},
 				}
 			},
@@ -372,6 +922,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						ID:          2,
 						Title:       "another",
 						Description: nil,
+						ModelID:     1,
 					},
 				}
 			},
@@ -397,6 +948,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -456,6 +1008,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -486,6 +1039,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -514,6 +1068,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -573,6 +1128,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -603,6 +1159,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -631,6 +1188,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -697,6 +1255,7 @@ func (s *TableTestSuite) TestTable_MustEvaluateValue() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -767,6 +1326,7 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -951,6 +1511,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -971,6 +1532,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -991,6 +1553,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1011,6 +1574,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1065,6 +1629,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1085,6 +1650,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1105,6 +1671,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1125,6 +1692,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1174,6 +1742,7 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1195,6 +1764,7 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1216,6 +1786,7 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1243,6 +1814,238 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 
 			// action.
 			query, args, err := s.sut.InsertQueryWithArgs(&model, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_References_InsertQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES (?, ?, ?, ?);", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES ($, $, $, $);", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES ($1, $2, $3, $4);", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES (:description, :id, :model_id, :title);", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, err := ref.InsertQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_References_InsertQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []any, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES (?, ?, ?, ?);", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES ($, $, $, $);", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("INSERT INTO another_test_models (description, id, model_id, title) VALUES ($1, $2, $3, $4);", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, args, err := ref.InsertQueryWithArgs(model.Another, test.queryOptions...)
 
 			// assert.
 			test.assertions(model, query, args, err)
@@ -1285,6 +2088,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1304,6 +2108,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1324,6 +2129,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1344,6 +2150,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1364,6 +2171,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1418,6 +2226,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1437,6 +2246,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1457,6 +2267,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1477,6 +2288,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1497,6 +2309,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1546,6 +2359,7 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1566,6 +2380,7 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					ID:   1,
 					Name: nil,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1587,6 +2402,7 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1608,6 +2424,7 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1652,6 +2469,238 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs_InvalidTable() {
 	s.Empty(args)
 }
 
+func (s *TableTestSuite) TestTable_References_UpdateQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = ?, A.model_id = ?, A.title = ? WHERE 1=1 AND A.id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = $, A.model_id = $, A.title = $ WHERE 1=1 AND A.id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = $1, A.model_id = $2, A.title = $3 WHERE 1=1 AND A.id = $4;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = :description, A.model_id = :model_id, A.title = :title WHERE 1=1 AND A.id = :id;", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, err := ref.UpdateQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_References_UpdateQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []any, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = ?, A.model_id = ?, A.title = ? WHERE 1=1 AND A.id = ?;", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = $, A.model_id = $, A.title = $ WHERE 1=1 AND A.id = $;", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("UPDATE another_test_models AS A SET A.description = $1, A.model_id = $2, A.title = $3 WHERE 1=1 AND A.id = $4;", query)
+				s.ElementsMatch([]any{any(nil), obj.Another.ModelID, obj.Another.Title, obj.Another.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, args, err := ref.UpdateQueryWithArgs(model.Another, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
 func (s *TableTestSuite) TestTable_DeleteQuery_InvalidTable() {
 	// action.
 	query, err := s.sut.DeleteQuery()
@@ -1677,6 +2726,7 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1697,6 +2747,7 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1717,6 +2768,7 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1737,6 +2789,7 @@ func (s *TableTestSuite) TestTable_DeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1791,6 +2844,7 @@ func (s *TableTestSuite) TestTable_MustDeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1811,6 +2865,7 @@ func (s *TableTestSuite) TestTable_MustDeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1831,6 +2886,7 @@ func (s *TableTestSuite) TestTable_MustDeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1851,6 +2907,7 @@ func (s *TableTestSuite) TestTable_MustDeleteQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1900,6 +2957,7 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1921,6 +2979,7 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1942,6 +3001,7 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -1986,6 +3046,238 @@ func (s *TableTestSuite) TestTable_DeleteQueryWithArgs_InvalidTable() {
 	s.Empty(args)
 }
 
+func (s *TableTestSuite) TestTable_References_DeleteQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = $1;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = :model_id;", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, err := ref.DeleteQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_References_DeleteQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []any, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = ?;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = $;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("DELETE FROM another_test_models WHERE 1=1 AND model_id = $1;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, args, err := ref.DeleteQueryWithArgs(model.Another, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
 func (s *TableTestSuite) TestTable_SelectQuery() {
 	tests := []struct {
 		name         string
@@ -2002,6 +3294,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2022,6 +3315,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2042,6 +3336,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2062,6 +3357,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2116,6 +3412,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2136,6 +3433,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2156,6 +3454,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2176,6 +3475,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2225,6 +3525,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2246,6 +3547,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2267,6 +3569,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 					ID:   1,
 					Name: &name,
 					Another: AnotherTestModel{
+						ModelID:     1,
 						ID:          2,
 						Title:       "another",
 						Description: nil,
@@ -2311,9 +3614,242 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs_InvalidTable() {
 	s.Empty(args)
 }
 
+func (s *TableTestSuite) TestTable_References_SelectQuery() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(query string, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
+			},
+		},
+		{
+			name:         "WithNamedParameters",
+			queryOptions: []morph.QueryOption{morph.WithNamedParameters()},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(query string, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = :model_id;", query)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, err := ref.SelectQuery(test.queryOptions...)
+
+			// assert.
+			test.assertions(query, err)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_References_SelectQueryWithArgs() {
+	tests := []struct {
+		name         string
+		queryOptions []morph.QueryOption
+		preparations func() TestModel
+		assertions   func(obj TestModel, query string, args []any, err error)
+	}{
+		{
+			name:         "NoOptions",
+			queryOptions: []morph.QueryOption{},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_NoOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", false)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+		{
+			name:         "WithPlaceholder_WithOrdering",
+			queryOptions: []morph.QueryOption{morph.WithPlaceholder("$", true)},
+			preparations: func() TestModel {
+				name := "test"
+				return TestModel{
+					ID:   1,
+					Name: &name,
+					Another: AnotherTestModel{
+						ModelID:     1,
+						ID:          2,
+						Title:       "another",
+						Description: nil,
+					},
+				}
+			},
+			assertions: func(obj TestModel, query string, args []any, err error) {
+				s.Require().NoError(err)
+				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
+				s.ElementsMatch([]any{obj.ID}, args)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			model := test.preparations()
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+			parent := s.sut
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+			ref, err := child.References(&parent, key)
+			if err != nil {
+				s.FailNow("unable to create reference between parent and child tables", err)
+			}
+
+			// action.
+			query, args, err := ref.SelectQueryWithArgs(model.Another, test.queryOptions...)
+
+			// assert.
+			test.assertions(model, query, args, err)
+		})
+	}
+}
+
 func (s *TableTestSuite) TestTable_EvaluationResults_Empties() {
 	// arrange.
 	m := AnotherTestModel{
+		ModelID:     1,
 		ID:          2,
 		Title:       "another",
 		Description: nil,
@@ -2337,6 +3873,7 @@ func (s *TableTestSuite) TestTable_EvaluationResults_Empties() {
 func (s *TableTestSuite) TestTable_EvaluationResults_NonEmpties() {
 	// arrange.
 	m := AnotherTestModel{
+		ModelID:     1,
 		ID:          2,
 		Title:       "another",
 		Description: nil,
@@ -2353,6 +3890,197 @@ func (s *TableTestSuite) TestTable_EvaluationResults_NonEmpties() {
 
 	// assert.
 	s.NoError(err)
-	s.Len(result.NonEmpties(), 2)
-	s.ElementsMatch(result.NonEmpties(), []string{"id", "title"})
+	s.Len(result.NonEmpties(), 3)
+	s.ElementsMatch(result.NonEmpties(), []string{"id", "title", "model_id"})
+}
+
+func (s *TableTestSuite) TestTable_FindReferences() {
+	tests := []struct {
+		name         string
+		preparations func(child, parent *morph.Table)
+		predicate    func(ref morph.Reference) bool
+		assertions   func(refs []morph.Reference, child, parent *morph.Table)
+	}{
+		{
+			name:         "NoReferences",
+			preparations: func(child, parent *morph.Table) {},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "another_test_models"
+			},
+			assertions: func(refs []morph.Reference, child, parent *morph.Table) {
+				s.Len(refs, 0)
+			},
+		},
+		{
+			name: "NoMatchingReferences",
+			preparations: func(child, parent *morph.Table) {
+				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+				_, err := child.References(parent, key)
+				if err != nil {
+					s.FailNow("unable to create reference between parent and child tables", err)
+				}
+			},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "foos"
+			},
+			assertions: func(refs []morph.Reference, child, parent *morph.Table) {
+				s.Len(refs, 0)
+			},
+		},
+		{
+			name: "MatchingReferences",
+			preparations: func(child, parent *morph.Table) {
+				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+				_, err := child.References(parent, key)
+				if err != nil {
+					s.FailNow("unable to create reference between parent and child tables", err)
+				}
+			},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "another_test_models"
+			},
+			assertions: func(refs []morph.Reference, child, parent *morph.Table) {
+				s.Require().Len(refs, 1)
+				s.True(refs[0].Child().Equals(*child))
+				s.True(refs[0].Parent().Equals(*parent))
+				s.Equal(
+					child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" }),
+					refs[0].ForeignKey(),
+				)
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			name := "test"
+			model := TestModel{
+				ID:   1,
+				Name: &name,
+				Another: AnotherTestModel{
+					ModelID:     1,
+					ID:          2,
+					Title:       "another",
+					Description: nil,
+				},
+			}
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			test.preparations(&child, &s.sut)
+
+			// action.
+			refs := s.sut.FindReferences(test.predicate)
+
+			// assert.
+			test.assertions(refs, &child, &s.sut)
+		})
+	}
+}
+
+func (s *TableTestSuite) TestTable_FindReference() {
+	tests := []struct {
+		name         string
+		preparations func(child, parent *morph.Table)
+		predicate    func(ref morph.Reference) bool
+		assertions   func(ref morph.Reference, ok bool, child, parent *morph.Table)
+	}{
+		{
+			name:         "NoReferences",
+			preparations: func(child, parent *morph.Table) {},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "another_test_models"
+			},
+			assertions: func(ref morph.Reference, ok bool, child, parent *morph.Table) {
+				s.False(ok)
+				s.Empty(ref)
+			},
+		},
+		{
+			name: "NoMatchingReferences",
+			preparations: func(child, parent *morph.Table) {
+				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+				_, err := child.References(parent, key)
+				if err != nil {
+					s.FailNow("unable to create reference between parent and child tables", err)
+				}
+			},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "foos"
+			},
+			assertions: func(ref morph.Reference, ok bool, child, parent *morph.Table) {
+				s.False(ok)
+				s.Empty(ref)
+			},
+		},
+		{
+			name: "MatchingReferences",
+			preparations: func(child, parent *morph.Table) {
+				key := child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" })
+
+				_, err := child.References(parent, key)
+				if err != nil {
+					s.FailNow("unable to create reference between parent and child tables", err)
+				}
+			},
+			predicate: func(ref morph.Reference) bool {
+				return ref.Child().Name() == "another_test_models"
+			},
+			assertions: func(ref morph.Reference, ok bool, child, parent *morph.Table) {
+				s.True(ok)
+				s.True(ref.Child().Equals(*child))
+				s.True(ref.Parent().Equals(*parent))
+				s.Equal(child.FindColumns(func(c morph.Column) bool { return c.Name() == "model_id" }), ref.ForeignKey())
+			},
+		},
+	}
+
+	for _, test := range tests {
+		s.Run(test.name, func() {
+			// arrange.
+			name := "test"
+			model := TestModel{
+				ID:   1,
+				Name: &name,
+				Another: AnotherTestModel{
+					ModelID:     1,
+					ID:          2,
+					Title:       "another",
+					Description: nil,
+				},
+			}
+
+			var err error
+			s.sut, err = morph.Reflect(&model)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			child, err := morph.Reflect(&model.Another)
+			if err != nil {
+				s.FailNow("unable to reflect in test", err)
+			}
+
+			test.preparations(&child, &s.sut)
+
+			// action.
+			ref, ok := s.sut.FindReference(test.predicate)
+
+			// assert.
+			test.assertions(ref, ok, &child, &s.sut)
+		})
+	}
 }

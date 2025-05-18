@@ -82,3 +82,14 @@ func (c *Column) FieldType() string {
 func (c *Column) SetFieldType(fieldType string) {
 	c.fieldType = strings.TrimSpace(fieldType)
 }
+
+// equal checks if two columns are equal.
+func (c Column) equals(other Column) bool {
+	sameName := c.Name() == other.Name()
+	sameField := c.Field() == other.Field()
+	sameFieldType := c.FieldType() == other.FieldType()
+	sameFieldStrategy := c.Strategy() == other.Strategy()
+	samePrimaryKey := c.PrimaryKey() == other.PrimaryKey()
+
+	return sameName && sameField && sameFieldType && sameFieldStrategy && samePrimaryKey
+}

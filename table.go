@@ -1,14 +1,13 @@
 package morph
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
-	"text/template"
 )
 
 // Defines the various errors that can occur when interacting with tables.
@@ -38,6 +37,14 @@ var (
 
 	// ErrMissingNonPrimaryKey represents an error encountered when a table does not have any non-primary key columns.
 	ErrMissingNonPrimaryKey = errors.New("morph: table must have at least one non-primary key column")
+
+	// ErrMissingForeignKeyColumns represents an error encountered when establishing a reference
+	// between two tables but the foreign key columns are not present in the child table.
+	ErrMissingForeignKeyColumns = errors.New("morph: specified foreign key columns are missing from table")
+
+	// ErrMissingReference represents an error encountered when a reference is not found
+	// based on the provided criteria.
+	ErrMissingReference = errors.New("morph: no matching reference found")
 )
 
 var (
@@ -76,6 +83,7 @@ type Table struct {
 	alias          string
 	columnsByName  map[string]Column
 	columnsByField map[string]Column
+	references     []Reference
 }
 
 // SetType associates the entity type to the table.
@@ -89,12 +97,12 @@ func (t *Table) SetTypeName(typeName string) {
 }
 
 // TypeName retrieves the type name of the entity associated to the table.
-func (t *Table) TypeName() string {
+func (t Table) TypeName() string {
 	return t.typeName
 }
 
 // Name retrieves the the table name.
-func (t *Table) Name() string {
+func (t Table) Name() string {
 	return t.name
 }
 
@@ -104,8 +112,105 @@ func (t *Table) SetName(name string) {
 }
 
 // Alias retrieves the alias for the table.
-func (t *Table) Alias() string {
+func (t Table) Alias() string {
 	return t.alias
+}
+
+// ReferencesTo retrieves all of the tables that this table references.
+func (t Table) ReferencesTo() []Table {
+	refs := t.FindReferences(func(r Reference) bool {
+		return r.child.Equals(t)
+	})
+	tables := []Table{}
+	for _, ref := range refs {
+		tables = append(tables, ref.parent)
+	}
+	return tables
+}
+
+// ReferenceTo retrieves the reference to the provided table.
+func (t Table) ReferenceTo(table Table) (Reference, error) {
+	ref, ok := t.FindReference(func(r Reference) bool {
+		return r.child.Equals(t) && r.parent.Equals(table)
+	})
+
+	if !ok {
+		return Reference{}, ErrMissingReference
+	}
+
+	return ref, nil
+}
+
+// HasReferenceTo checks if this table has a reference to the provided table.
+func (t Table) HasReferenceTo(table Table) bool {
+	_, ok := t.FindReference(func(r Reference) bool {
+		return r.child.Equals(t) && r.parent.Equals(table)
+	})
+	return ok
+}
+
+// IsReferenced checks if this table is referenced by any other tables.
+func (t Table) IsReferenced() bool {
+	_, ok := t.FindReference(func(r Reference) bool {
+		return r.parent.Equals(t)
+	})
+	return ok
+}
+
+// IsReferencedBy checks if this table is referenced by the provided table.
+func (t Table) IsReferencedBy(table Table) bool {
+	_, ok := t.FindReference(func(r Reference) bool {
+		return r.child.Equals(table) && r.parent.Equals(t)
+	})
+	return ok
+}
+
+// ReferencedBy retrieves all of the tables that reference this table.
+func (t Table) ReferencedBy() []Table {
+	refs := t.FindReferences(func(r Reference) bool {
+		return r.parent.Equals(t)
+	})
+	tables := []Table{}
+	for _, ref := range refs {
+		tables = append(tables, ref.child)
+	}
+	return tables
+}
+
+// FindReferences retrieves all of the references that match the provided predicate.
+func (t Table) FindReferences(p func(Reference) bool) []Reference {
+	refs := []Reference{}
+	for _, ref := range t.references {
+		if p(ref) {
+			refs = append(refs, ref)
+		}
+	}
+	return refs
+}
+
+// FindReference retrieves the first reference that matches the provided predicate,
+// returning a boolean indicating if a match was found.
+func (t Table) FindReference(p func(Reference) bool) (Reference, bool) {
+	refs := t.FindReferences(p)
+	if len(refs) > 0 {
+		return refs[0], true
+	}
+	return Reference{}, false
+}
+
+func (t *Table) setReferences(refs []Reference) {
+	if refs == nil {
+		t.references = []Reference{}
+		return
+	}
+
+	if t.references == nil {
+		t.references = []Reference{}
+	}
+
+	r := make([]Reference, len(refs))
+	copy(r, refs)
+	t.references = r
 }
 
 // SetAlias modifies the alias of the table.
@@ -120,6 +225,20 @@ func (t *Table) ColumnNames() []string {
 		names = append(names, col.Name())
 	}
 	return names
+}
+
+// PrimaryKeyColumns retrieves all of the primary key columns for the table.
+func (t *Table) PrimaryKeyColumns() []Column {
+	return t.FindColumns(func(c Column) bool {
+		return c.PrimaryKey()
+	})
+}
+
+// NonPrimaryKeyColumns retrieves all of the non-primary key columns for the table.
+func (t *Table) NonPrimaryKeyColumns() []Column {
+	return t.FindColumns(func(c Column) bool {
+		return !c.PrimaryKey()
+	})
 }
 
 // ColumnName retrieves the column name associated to the provide field name.
@@ -326,101 +445,18 @@ func (t *Table) validate() error {
 	return nil
 }
 
-// query generates a query for the table using the provided template and options.
-func (t *Table) query(tmpl *template.Template, options ...QueryOption) (string, error) {
-	if err := t.validate(); err != nil {
-		return "", err
-	}
-
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
-
-	data := struct {
-		Table          *Table
-		PrimaryKeys    []Column
-		NonPrimaryKeys []Column
-		Options        *QueryOptions
-		Data           EvaluationResult
-	}{
-		Table:          t,
-		Options:        qo,
-		PrimaryKeys:    t.FindColumns(func(c Column) bool { return c.PrimaryKey() }),
-		NonPrimaryKeys: t.FindColumns(func(c Column) bool { return !c.PrimaryKey() }),
-	}
-
-	if qo.OmitEmpty && qo.obj != nil {
-		var err error
-		if data.Data, err = t.Evaluate(qo.obj); err != nil {
-			return "", err
-		}
-	}
-
-	buf := new(bytes.Buffer)
-	err := tmpl.Execute(buf, data)
-	if err != nil {
-		return "", err
-	}
-
-	return buf.String(), nil
-}
-
-func (t *Table) queryWithArgs(namedQuery string, obj any, options ...QueryOption) (string, []any, error) {
-	qo := &QueryOptions{}
-	opts := append(DefaultQueryOptions, options...)
-	for _, opt := range opts {
-		opt(qo)
-	}
-
-	result, err := t.Evaluate(obj)
-	if err != nil {
-		return "", nil, err
-	}
-
-	args := []any{}
-	missing := []string{}
-
-	count := 0
-	query := namedParamRegExp.ReplaceAllStringFunc(namedQuery, func(match string) string {
-		name := match[1:]
-
-		if arg, ok := result[name]; ok {
-			args = append(args, arg)
-			if qo.Ordered {
-				count += 1
-				return qo.Placeholder + fmt.Sprintf("%d", count)
-			}
-			return qo.Placeholder
-		}
-
-		missing = append(missing, name)
-		return match
-	})
-
-	if len(missing) > 0 {
-		return "", nil, errors.New("morph: missing values for named parameters: " + strings.Join(missing, ", "))
-	}
-
-	return query, args, nil
-}
-
 // InsertQuery generates an INSERT query for the table.
 func (t *Table) InsertQuery(options ...QueryOption) (string, error) {
-	return t.query(insertTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(insertTmpl, options...)
 }
 
 // InsertQueryWithArgs generates an INSERT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) InsertQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.InsertQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.InsertQueryWithArgs(obj, opts...)
 }
 
 // MustInsertQuery performs the same operation as InsertQuery but panics if an error occurs.
@@ -430,19 +466,16 @@ func (t *Table) MustInsertQuery(options ...QueryOption) string {
 
 // UpdateQuery generates an UPDATE query for the table.
 func (t *Table) UpdateQuery(options ...QueryOption) (string, error) {
-	return t.query(updateTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(updateTmpl, options...)
 }
 
 // UpdateQueryWithArgs generates an UPDATE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) UpdateQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.UpdateQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.UpdateQueryWithArgs(obj, opts...)
 }
 
 // MustUpdateQuery performs the same operation as UpdateQuery but panics if an error occurs.
@@ -452,19 +485,16 @@ func (t *Table) MustUpdateQuery(options ...QueryOption) string {
 
 // DeleteQuery generates a DELETE query for the table.
 func (t *Table) DeleteQuery(options ...QueryOption) (string, error) {
-	return t.query(deleteTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(deleteTmpl, options...)
 }
 
 // DeleteQueryWithArgs generates a DELETE query for the table along with arguments
 // derived from the provided object.
 func (t *Table) DeleteQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.DeleteQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.DeleteQueryWithArgs(obj, opts...)
 }
 
 // MustDeleteQuery performs the same operation as DeleteQuery but panics if an error occurs.
@@ -474,22 +504,58 @@ func (t *Table) MustDeleteQuery(options ...QueryOption) string {
 
 // SelectQuery generates a SELECT query for the table.
 func (t *Table) SelectQuery(options ...QueryOption) (string, error) {
-	return t.query(selectTmpl, options...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.query(selectTmpl, options...)
 }
 
 // SelectQueryWithArgs generates a SELECT query for the table along with arguments
 // derived from the provided object.
 func (t *Table) SelectQueryWithArgs(obj any, options ...QueryOption) (string, []any, error) {
 	opts := append(options, WithNamedParameters())
-	query, err := t.SelectQuery(opts...)
-	if err != nil {
-		return "", nil, err
-	}
-
-	return t.queryWithArgs(query, obj, opts...)
+	generator := newQueryGenerator(t, t.PrimaryKeyColumns(), t.NonPrimaryKeyColumns())
+	return generator.SelectQueryWithArgs(obj, opts...)
 }
 
 // MustSelectQuery performs the same operation as SelectQuery but panics if an error occurs.
 func (t *Table) MustSelectQuery(options ...QueryOption) string {
 	return Must(t.SelectQuery(options...))
+}
+
+// References creates a reference between two tables, where the provided table
+// is treated as the parent and the current table is treated as the child.
+func (t *Table) References(table *Table, key []Column) (Reference, error) {
+	if err := t.validate(); err != nil {
+		return Reference{}, err
+	}
+
+	if err := table.validate(); err != nil {
+		return Reference{}, err
+	}
+
+	if len(t.FindColumns(func(c Column) bool { return slices.Contains(key, c) })) == 0 {
+		return Reference{}, ErrMissingForeignKeyColumns
+	}
+
+	ref := Reference{parent: *table, child: *t, foreignKey: key}
+
+	if !slices.ContainsFunc(t.references, func(r Reference) bool { return ref.equals(r) }) {
+		t.setReferences(append(t.references, ref))
+	}
+
+	if !slices.ContainsFunc(table.references, func(r Reference) bool { return ref.equals(r) }) {
+		table.setReferences(append(table.references, ref))
+	}
+
+	return Reference{parent: *table, child: *t, foreignKey: key}, nil
+}
+
+// Equals checks if two tables are equal.
+func (t Table) Equals(other Table) bool {
+	sameTypeName := t.TypeName() == other.TypeName()
+	sameName := t.Name() == other.Name()
+	sameColumns := slices.EqualFunc(t.Columns(), other.Columns(), func(a, b Column) bool {
+		return a.equals(b)
+	})
+
+	return sameTypeName && sameName && sameColumns
 }
