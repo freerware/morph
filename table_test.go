@@ -352,6 +352,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -379,6 +381,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
+						"deleted_at": nil,
+						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -406,6 +410,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						"id":           1,
 						"name":         nil,
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -463,6 +469,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -490,6 +498,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
+						"deleted_at": nil,
+						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -517,6 +527,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						"id":           1,
 						"name":         nil,
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -574,6 +586,8 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -601,6 +615,8 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
+						"deleted_at": nil,
+						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -628,6 +644,8 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						"id":           1,
 						"name":         nil,
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -691,6 +709,8 @@ func (s *TableTestSuite) TestTable_MustEvaluateValue() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -759,6 +779,8 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
+						"deleted_at":   nil,
+						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
 					result,
@@ -937,7 +959,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES (?, ?, ?, ?);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES (?, ?, ?, ?, ?, ?);", query)
 			},
 		},
 		{
@@ -957,7 +979,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES (:created_at, :id, :maybe_ignore, :name);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES (:created_at, :deleted_at, :id, :maybe_ignore, :name, :updated_at);", query)
 			},
 		},
 		{
@@ -977,7 +999,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($, $, $, $);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($, $, $, $, $, $);", query)
 			},
 		},
 		{
@@ -997,7 +1019,7 @@ func (s *TableTestSuite) TestTable_InsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($1, $2, $3, $4);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($1, $2, $3, $4, $5, $6);", query)
 			},
 		},
 	}
@@ -1051,7 +1073,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES (?, ?, ?, ?);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES (?, ?, ?, ?, ?, ?);", query)
 			},
 		},
 		{
@@ -1071,7 +1093,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES (:created_at, :id, :maybe_ignore, :name);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES (:created_at, :deleted_at, :id, :maybe_ignore, :name, :updated_at);", query)
 			},
 		},
 		{
@@ -1091,7 +1113,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($, $, $, $);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($, $, $, $, $, $);", query)
 			},
 		},
 		{
@@ -1111,7 +1133,7 @@ func (s *TableTestSuite) TestTable_MustInsertQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($1, $2, $3, $4);", query)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($1, $2, $3, $4, $5, $6);", query)
 			},
 		},
 	}
@@ -1160,8 +1182,8 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES (?, ?, ?, ?);", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name, obj.MaybeIgnore}, args)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES (?, ?, ?, ?, ?, ?);", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), obj.ID, *obj.Name, obj.MaybeIgnore, obj.UpdatedAt}, args)
 			},
 		},
 		{
@@ -1181,8 +1203,8 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($, $, $, $);", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name, obj.MaybeIgnore}, args)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($, $, $, $, $, $);", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), obj.ID, *obj.Name, obj.MaybeIgnore, obj.UpdatedAt}, args)
 			},
 		},
 		{
@@ -1202,8 +1224,8 @@ func (s *TableTestSuite) TestTable_InsertQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("INSERT INTO test_models (created_at, id, maybe_ignore, name) VALUES ($1, $2, $3, $4);", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.ID, *obj.Name, obj.MaybeIgnore}, args)
+				s.Equal("INSERT INTO test_models (created_at, deleted_at, id, maybe_ignore, name, updated_at) VALUES ($1, $2, $3, $4, $5, $6);", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), obj.ID, *obj.Name, obj.MaybeIgnore, obj.UpdatedAt}, args)
 			},
 		},
 	}
@@ -1271,7 +1293,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.deleted_at = ?, T.maybe_ignore = ?, T.name = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -1290,7 +1312,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ? WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -1310,7 +1332,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.maybe_ignore = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.deleted_at = $, T.maybe_ignore = $, T.name = $, T.updated_at = $ WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -1330,7 +1352,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.maybe_ignore = $2, T.name = $3 WHERE 1=1 AND T.id = $4;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.deleted_at = $2, T.maybe_ignore = $3, T.name = $4, T.updated_at = $5 WHERE 1=1 AND T.id = $6;", query)
 			},
 		},
 		{
@@ -1350,7 +1372,7 @@ func (s *TableTestSuite) TestTable_UpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.maybe_ignore = :maybe_ignore, T.name = :name WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.deleted_at = :deleted_at, T.maybe_ignore = :maybe_ignore, T.name = :name, T.updated_at = :updated_at WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -1404,7 +1426,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.deleted_at = ?, T.maybe_ignore = ?, T.name = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -1423,7 +1445,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ? WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -1443,7 +1465,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.maybe_ignore = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.deleted_at = $, T.maybe_ignore = $, T.name = $, T.updated_at = $ WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -1463,7 +1485,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.maybe_ignore = $2, T.name = $3 WHERE 1=1 AND T.id = $4;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.deleted_at = $2, T.maybe_ignore = $3, T.name = $4, T.updated_at = $5 WHERE 1=1 AND T.id = $6;", query)
 			},
 		},
 		{
@@ -1483,7 +1505,7 @@ func (s *TableTestSuite) TestTable_MustUpdateQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.maybe_ignore = :maybe_ignore, T.name = :name WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("UPDATE test_models AS T SET T.created_at = :created_at, T.deleted_at = :deleted_at, T.maybe_ignore = :maybe_ignore, T.name = :name, T.updated_at = :updated_at WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -1532,8 +1554,8 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.name = ? WHERE 1=1 AND T.id = ?;", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.MaybeIgnore, *obj.Name, obj.ID}, args)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.deleted_at = ?, T.maybe_ignore = ?, T.name = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), obj.ID, *obj.Name, obj.MaybeIgnore, obj.UpdatedAt}, args)
 			},
 		},
 		{
@@ -1552,8 +1574,8 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ? WHERE 1=1 AND T.id = ?;", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.MaybeIgnore, obj.ID}, args)
+				s.Equal("UPDATE test_models AS T SET T.created_at = ?, T.maybe_ignore = ?, T.updated_at = ? WHERE 1=1 AND T.id = ?;", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), obj.MaybeIgnore, obj.UpdatedAt, obj.ID}, args)
 			},
 		},
 		{
@@ -1573,8 +1595,8 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.maybe_ignore = $, T.name = $ WHERE 1=1 AND T.id = $;", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.MaybeIgnore, *obj.Name, obj.ID}, args)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $, T.deleted_at = $, T.maybe_ignore = $, T.name = $, T.updated_at = $ WHERE 1=1 AND T.id = $;", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), *obj.Name, obj.MaybeIgnore, obj.UpdatedAt, obj.ID}, args)
 			},
 		},
 		{
@@ -1594,8 +1616,8 @@ func (s *TableTestSuite) TestTable_UpdateQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.maybe_ignore = $2, T.name = $3 WHERE 1=1 AND T.id = $4;", query)
-				s.ElementsMatch([]any{obj.CreatedAt(), obj.MaybeIgnore, *obj.Name, obj.ID}, args)
+				s.Equal("UPDATE test_models AS T SET T.created_at = $1, T.deleted_at = $2, T.maybe_ignore = $3, T.name = $4, T.updated_at = $5 WHERE 1=1 AND T.id = $6;", query)
+				s.ElementsMatch([]any{obj.CreatedAt(), any(nil), *obj.Name, obj.MaybeIgnore, obj.UpdatedAt, obj.ID}, args)
 			},
 		},
 	}
@@ -1988,7 +2010,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -2008,7 +2030,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -2028,7 +2050,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 			},
 		},
 		{
@@ -2048,7 +2070,7 @@ func (s *TableTestSuite) TestTable_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -2102,7 +2124,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 			},
 		},
 		{
@@ -2122,7 +2144,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 			},
 		},
 		{
@@ -2142,7 +2164,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 			},
 		},
 		{
@@ -2162,7 +2184,7 @@ func (s *TableTestSuite) TestTable_MustSelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = :id;", query)
 			},
 		},
 	}
@@ -2211,7 +2233,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = ?;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -2232,7 +2254,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -2253,7 +2275,7 @@ func (s *TableTestSuite) TestTable_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT T.created_at, T.id, T.maybe_ignore, T.name FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
+				s.Equal("SELECT T.created_at, T.deleted_at, T.id, T.maybe_ignore, T.name, T.updated_at FROM test_models AS T WHERE 1=1 AND T.id = $1;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},

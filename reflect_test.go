@@ -13,6 +13,8 @@ type TestModel struct {
 	Name        *string
 	Another     AnotherTestModel
 	MaybeIgnore bool `db:"-"`
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time
 }
 
 func (t *TestModel) CreatedAt() time.Time {
@@ -50,8 +52,9 @@ func TestReflectTestSuite(t *testing.T) {
 func (s *ReflectTestSuite) SetupTest() {
 	name := "test"
 	m := TestModel{
-		ID:   1,
-		Name: &name,
+		ID:        1,
+		Name:      &name,
+		UpdatedAt: time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 		Another: AnotherTestModel{
 			ID:          2,
 			Title:       "another",
@@ -115,7 +118,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -158,7 +174,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -201,7 +230,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -244,7 +286,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -287,7 +342,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -330,7 +398,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -373,7 +454,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -416,7 +510,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -462,7 +569,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UPDATED_AT")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DELETED_AT")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -508,7 +628,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UPDATEDAT")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DELETEDAT")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -551,7 +684,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updatedat")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deletedat")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -594,7 +740,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UpdatedAt")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DeletedAt")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -637,7 +796,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -680,7 +852,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -716,7 +901,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -753,7 +951,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -790,7 +1001,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -827,7 +1051,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -864,7 +1101,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -909,7 +1159,20 @@ func (s *ReflectTestSuite) TestReflect_WithValue() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -991,7 +1254,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1034,7 +1310,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1077,7 +1366,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1120,7 +1422,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1163,7 +1478,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1206,7 +1534,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1249,7 +1590,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1292,7 +1646,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1338,7 +1705,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UPDATED_AT")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DELETED_AT")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1384,7 +1764,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UPDATEDAT")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DELETEDAT")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1427,7 +1820,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updatedat")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deletedat")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1470,7 +1876,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("UpdatedAt")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("DeletedAt")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1513,7 +1932,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1556,7 +1988,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1593,7 +2038,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				createdAtColumn.SetStrategy(morph.FieldStrategyMethod)
 				createdAtColumn.SetFieldType("time.Time")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, createdAtColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1630,7 +2088,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1667,7 +2138,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1704,7 +2188,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1741,7 +2238,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1786,7 +2296,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1831,7 +2354,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
@@ -1876,7 +2412,20 @@ func (s *ReflectTestSuite) TestReflect_WithPointer() {
 				maybeIgnoreColumn.SetStrategy(morph.FieldStrategyStructField)
 				maybeIgnoreColumn.SetFieldType("bool")
 
-				if err := t.AddColumns(append(columns, idColumn, nameColumn, createdAtColumn, maybeIgnoreColumn)...); err != nil {
+				var updatedAtColumn morph.Column
+				updatedAtColumn.SetName("updated_at")
+				updatedAtColumn.SetField("UpdatedAt")
+				updatedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				updatedAtColumn.SetFieldType("time.Time")
+
+				var deletedAtColumn morph.Column
+				deletedAtColumn.SetName("deleted_at")
+				deletedAtColumn.SetField("DeletedAt")
+				deletedAtColumn.SetStrategy(morph.FieldStrategyStructField)
+				deletedAtColumn.SetFieldType("*time.Time")
+
+				columns = append(columns, idColumn, createdAtColumn, nameColumn, maybeIgnoreColumn, updatedAtColumn, deletedAtColumn)
+				if err := t.AddColumns(columns...); err != nil {
 					s.FailNow("failed to setup expectations for test: %v", err.Error())
 				}
 				return t
