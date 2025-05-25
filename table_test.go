@@ -324,6 +324,8 @@ func (s *TableTestSuite) TestTable_AddColumns() {
 }
 
 func (s *TableTestSuite) TestTable_EvaluateWithValue() {
+	deleted_at := time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+
 	tests := []struct {
 		name           string
 		reflectOptions []morph.ReflectOption
@@ -343,6 +345,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deleted_at,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -352,7 +355,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
-						"deleted_at":   nil,
+						"deleted_at":   deleted_at,
 						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -373,6 +376,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deleted_at,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -381,7 +385,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
-						"deleted_at": nil,
+						"deleted_at": deleted_at,
 						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -401,6 +405,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: nil,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -441,6 +446,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithValue() {
 }
 
 func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
+	deletedAt := time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+
 	tests := []struct {
 		name           string
 		reflectOptions []morph.ReflectOption
@@ -460,6 +467,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -469,7 +477,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
-						"deleted_at":   nil,
+						"deleted_at":   deletedAt,
 						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -490,6 +498,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -498,7 +507,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
-						"deleted_at": nil,
+						"deleted_at": deletedAt,
 						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -518,6 +527,7 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: nil,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -558,6 +568,8 @@ func (s *TableTestSuite) TestTable_EvaluateWithPointer() {
 }
 
 func (s *TableTestSuite) TestTable_EvaluateMismatched() {
+	deletedAt := time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+
 	tests := []struct {
 		name           string
 		reflectOptions []morph.ReflectOption
@@ -577,6 +589,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -586,7 +599,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
-						"deleted_at":   nil,
+						"deleted_at":   deletedAt,
 						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -607,6 +620,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -615,7 +629,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 					morph.EvaluationResult{
 						"identifier": 1,
 						"name":       "test",
-						"deleted_at": nil,
+						"deleted_at": deletedAt,
 						"updated_at": time.Time{},
 						"created_at": time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -635,6 +649,7 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: nil,
 				}
 			},
 			assertions: func(result morph.EvaluationResult, err error) {
@@ -675,6 +690,8 @@ func (s *TableTestSuite) TestTable_EvaluateMismatched() {
 }
 
 func (s *TableTestSuite) TestTable_MustEvaluateValue() {
+	deletedAt := time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+
 	tests := []struct {
 		name           string
 		reflectOptions []morph.ReflectOption
@@ -701,6 +718,7 @@ func (s *TableTestSuite) TestTable_MustEvaluateValue() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult) {
@@ -709,7 +727,7 @@ func (s *TableTestSuite) TestTable_MustEvaluateValue() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
-						"deleted_at":   nil,
+						"deleted_at":   deletedAt,
 						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},
@@ -745,6 +763,8 @@ func (s *TableTestSuite) TestTable_MustEvaluateValue() {
 	}
 }
 func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
+	deletedAt := time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local)
+
 	tests := []struct {
 		name           string
 		reflectOptions []morph.ReflectOption
@@ -771,6 +791,7 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 						Title:       "another",
 						Description: nil,
 					},
+					DeletedAt: &deletedAt,
 				}
 			},
 			assertions: func(result morph.EvaluationResult) {
@@ -779,7 +800,7 @@ func (s *TableTestSuite) TestTable_MustEvaluatePointer() {
 						"id":           1,
 						"name":         "test",
 						"maybe_ignore": false,
-						"deleted_at":   nil,
+						"deleted_at":   deletedAt,
 						"updated_at":   time.Time{},
 						"created_at":   time.Date(2024, time.February, 28, 10, 30, 0, 0, time.Local),
 					},

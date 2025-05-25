@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // Defines the various errors that can occur when interacting with tables.
@@ -242,7 +243,7 @@ func (t *Table) Evaluate(obj any) (EvaluationResult, error) {
 			}
 
 			if val.Kind() == reflect.Ptr && !val.IsZero() {
-				if val.Elem().Kind() == reflect.Struct {
+				if val.Elem().Kind() == reflect.Struct && val.Elem().Type() != reflect.TypeOf(time.Time{}) {
 					continue
 				}
 				val = val.Elem()
