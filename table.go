@@ -243,7 +243,6 @@ func (t *Table) Evaluate(obj any) (EvaluationResult, error) {
 			}
 
 			if val.Kind() == reflect.Ptr && !val.IsZero() {
-				fmt.Println(fmt.Sprintf("%v: %v", fieldName, val.Type()))
 				if val.Elem().Kind() == reflect.Struct && val.Elem().Type() != reflect.TypeOf(time.Time{}) {
 					continue
 				}
