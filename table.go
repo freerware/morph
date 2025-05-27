@@ -8,7 +8,6 @@ import (
 	"slices"
 	"sort"
 	"strings"
-	"text/template"
 	"time"
 )
 

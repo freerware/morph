@@ -41,7 +41,7 @@ func ExampleTable_SelectQueryWithArgs_noOptions() {
 	fmt.Println(query)
 	fmt.Println(args)
 	// Output:
-	// SELECT category, class, crew, id, length, length_unit, name, speed, speed_unit FROM starships AS S WHERE 1=1 AND S.id = ?;
+	// SELECT S.category, S.class, S.crew, S.id, S.length, S.length_unit, S.name, S.speed, S.speed_unit FROM starships AS S WHERE 1=1 AND S.id = ?;
 	// [1]
 }
 
@@ -68,7 +68,7 @@ func ExampleTable_SelectQueryWithArgs_withOptions() {
 	fmt.Println(query)
 	fmt.Println(args)
 	// Output:
-	// SELECT category, class, crew, id, length, length_unit, name, speed, speed_unit FROM starships AS S WHERE 1=1 AND S.id = $1;
+	// SELECT S.category, S.class, S.crew, S.id, S.length, S.length_unit, S.name, S.speed, S.speed_unit FROM starships AS S WHERE 1=1 AND S.id = $1;
 	// [1]
 }
 
@@ -93,7 +93,7 @@ func ExampleTable_SelectQuery_noOptions() {
 	}
 
 	fmt.Println(query)
-	// Output: SELECT category, class, crew, id, length, length_unit, name, speed, speed_unit FROM starships AS S WHERE 1=1 AND S.id = ?;
+	// Output: SELECT S.category, S.class, S.crew, S.id, S.length, S.length_unit, S.name, S.speed, S.speed_unit FROM starships AS S WHERE 1=1 AND S.id = ?;
 }
 
 func ExampleTable_SelectQuery_withOptions() {
@@ -117,7 +117,7 @@ func ExampleTable_SelectQuery_withOptions() {
 	}
 
 	fmt.Println(query)
-	// Output: SELECT category, class, crew, id, length, length_unit, name, speed, speed_unit FROM starships AS S WHERE 1=1 AND S.id = $1;
+	// Output: SELECT S.category, S.class, S.crew, S.id, S.length, S.length_unit, S.name, S.speed, S.speed_unit FROM starships AS S WHERE 1=1 AND S.id = $1;
 }
 
 func ExampleTable_UpdateQueryWithArgs_noOptions() {

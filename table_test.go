@@ -3660,7 +3660,7 @@ func (s *TableTestSuite) TestTable_References_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
 			},
 		},
 		{
@@ -3681,7 +3681,7 @@ func (s *TableTestSuite) TestTable_References_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
 			},
 		},
 		{
@@ -3702,7 +3702,7 @@ func (s *TableTestSuite) TestTable_References_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
 			},
 		},
 		{
@@ -3723,7 +3723,7 @@ func (s *TableTestSuite) TestTable_References_SelectQuery() {
 			},
 			assertions: func(query string, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = :model_id;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = :model_id;", query)
 			},
 		},
 	}
@@ -3785,7 +3785,7 @@ func (s *TableTestSuite) TestTable_References_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = ?;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -3807,7 +3807,7 @@ func (s *TableTestSuite) TestTable_References_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
@@ -3829,7 +3829,7 @@ func (s *TableTestSuite) TestTable_References_SelectQueryWithArgs() {
 			},
 			assertions: func(obj TestModel, query string, args []any, err error) {
 				s.Require().NoError(err)
-				s.Equal("SELECT description, id, model_id, title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
+				s.Equal("SELECT A.description, A.id, A.model_id, A.title FROM another_test_models AS A WHERE 1=1 AND A.model_id = $1;", query)
 				s.ElementsMatch([]any{obj.ID}, args)
 			},
 		},
