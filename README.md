@@ -1,3 +1,5 @@
+<p align="center"><img src="https://github.com/user-attachments/assets/863dfb41-200b-42e3-9fef-d2daaa28e075" width="360"></p>
+
 # morph
 
 A compact package for organizing and maintaining your entity database metadata.

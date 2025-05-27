@@ -109,18 +109,17 @@ func fields(t reflect.Type, v reflect.Value, c ReflectConfiguration) []Column {
 			fieldVal = fieldVal.Elem()
 		}
 
-		// ignore fields to other structs. if we want to retrieve
-		// metadata for these fields, we should call Reflect on them directly.
-		// NOTE: it would be nice to be able to recursively reflect struct
-		// fields, but where things fall down is how we'd propogate the options
-		// to each call in a way that makes sense.
-		if fieldVal.Kind() == reflect.Struct {
+		// only struct support if for time.Time.
+		if fieldVal.Kind() == reflect.Struct && fieldVal.Type() != reflect.TypeOf(time.Time{}) {
 			continue
 		}
 
 		var tagValue string
 		if c.HasTag() {
-			tagValue = field.Tag.Get(*c.Tag)
+			tagValue = strings.TrimSpace(field.Tag.Get(*c.Tag))
+			if tagValue == "-" {
+				continue
+			}
 		}
 
 		if c.HasFieldExclusionPattern() {
@@ -192,6 +191,7 @@ func methods(t reflect.Type, c ReflectConfiguration) []Column {
 			returnType = returnType.Elem()
 		}
 
+		// only struct support if for time.Time.
 		if returnType.Kind() == reflect.Struct && returnType != reflect.TypeOf(time.Time{}) {
 			continue
 		}
