@@ -647,6 +647,9 @@ func BenchmarkReferenceInsertQueryWithArgs_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.InsertQueryWithArgs(millenniumFalcon.Owners[0])
@@ -670,6 +673,9 @@ func BenchmarkReferenceInsertQueryWithArgs_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.InsertQueryWithArgs(millenniumFalcon.Owners[0], morph.WithPlaceholder("$", true))
@@ -693,6 +699,9 @@ func BenchmarkReferenceInsertQueryWithArgs_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.InsertQueryWithArgs(millenniumFalcon.Owners[0], morph.WithNamedParameters())
@@ -716,6 +725,9 @@ func BenchmarkReferenceUpdateQueryWithArgs_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.UpdateQueryWithArgs(millenniumFalcon.Owners[0])
@@ -739,6 +751,9 @@ func BenchmarkReferenceUpdateQueryWithArgs_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.UpdateQueryWithArgs(millenniumFalcon.Owners[0], morph.WithPlaceholder("$", true))
@@ -762,6 +777,9 @@ func BenchmarkReferenceUpdateQueryWithArgs_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.UpdateQueryWithArgs(millenniumFalcon.Owners[0], morph.WithNamedParameters())
@@ -785,6 +803,9 @@ func BenchmarkReferenceUpdateQueryWithArgs_WithoutEmptyValues(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.UpdateQueryWithArgs(millenniumFalcon.Owners[0], morph.WithoutEmptyValues(millenniumFalcon.Owners[0]))
@@ -808,6 +829,9 @@ func BenchmarkReferenceDeleteQueryWithArgs_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.DeleteQueryWithArgs(millenniumFalcon.Owners[0])
@@ -831,6 +855,9 @@ func BenchmarkReferenceDeleteQueryWithArgs_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.DeleteQueryWithArgs(millenniumFalcon.Owners[0], morph.WithPlaceholder("$", true))
@@ -854,6 +881,9 @@ func BenchmarkReferenceDeleteQueryWithArgs_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.DeleteQueryWithArgs(millenniumFalcon.Owners[0], morph.WithNamedParameters())
@@ -877,6 +907,9 @@ func BenchmarkReferenceSelectQueryWithArgs_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.SelectQueryWithArgs(millenniumFalcon.Owners[0])
@@ -900,6 +933,9 @@ func BenchmarkReferenceSelectQueryWithArgs_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.SelectQueryWithArgs(millenniumFalcon.Owners[0], morph.WithPlaceholder("$", true))
@@ -923,6 +959,9 @@ func BenchmarkReferenceSelectQueryWithArgs_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, _, err := ref.SelectQueryWithArgs(millenniumFalcon.Owners[0], morph.WithNamedParameters())
@@ -948,6 +987,9 @@ func BenchmarkReferenceInsertQuery_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.InsertQuery()
@@ -971,6 +1013,9 @@ func BenchmarkReferenceInsertQuery_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.InsertQuery(morph.WithPlaceholder("$", true))
@@ -994,6 +1039,9 @@ func BenchmarkReferenceInsertQuery_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.InsertQuery(morph.WithNamedParameters())
@@ -1017,6 +1065,9 @@ func BenchmarkReferenceUpdateQuery_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.UpdateQuery()
@@ -1040,6 +1091,9 @@ func BenchmarkReferenceUpdateQuery_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.UpdateQuery(morph.WithPlaceholder("$", true))
@@ -1063,6 +1117,9 @@ func BenchmarkReferenceUpdateQuery_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.UpdateQuery(morph.WithNamedParameters())
@@ -1086,6 +1143,9 @@ func BenchmarkReferenceUpdateQuery_WithoutEmptyValues(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.UpdateQuery(morph.WithoutEmptyValues(millenniumFalcon.Owners[0]))
@@ -1109,6 +1169,9 @@ func BenchmarkReferenceDeleteQuery_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.DeleteQuery()
@@ -1132,6 +1195,9 @@ func BenchmarkReferenceDeleteQuery_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.DeleteQuery(morph.WithPlaceholder("$", true))
@@ -1155,6 +1221,9 @@ func BenchmarkReferenceDeleteQuery_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.DeleteQuery(morph.WithNamedParameters())
@@ -1178,6 +1247,9 @@ func BenchmarkReferenceSelectQuery_DefaultOptions(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.SelectQuery()
@@ -1201,6 +1273,9 @@ func BenchmarkReferenceSelectQuery_WithPlaceholder(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.SelectQuery(morph.WithPlaceholder("$", true))
@@ -1224,6 +1299,9 @@ func BenchmarkReferenceSelectQuery_WithNamedParameters(b *testing.B) {
 	ref, err := child.References(&parent, child.FindColumns(func(c morph.Column) bool {
 		return c.Name() == "starship_id"
 	}))
+	if err != nil {
+		b.FailNow()
+	}
 
 	for b.Loop() {
 		_, err := ref.SelectQuery(morph.WithNamedParameters())
