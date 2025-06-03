@@ -242,6 +242,15 @@ func (t *Table) NonPrimaryKeyColumns() []Column {
 	})
 }
 
+// HasColumn indicates whether the table has a column with the provided name.
+func (t *Table) HasColumn(name string) bool {
+	if t.columnsByName == nil {
+		t.columnsByName = make(map[string]Column)
+	}
+	_, ok := t.columnsByName[name]
+	return ok
+}
+
 // ColumnName retrieves the column name associated to the provide field name.
 func (t *Table) ColumnName(field string) (string, error) {
 	if t.columnsByField == nil {

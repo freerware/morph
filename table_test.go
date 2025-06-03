@@ -662,6 +662,39 @@ func (s *TableTestSuite) TestTable_SetAlias() {
 	s.Equal(expectedAlias, s.sut.Alias())
 }
 
+func (s *TableTestSuite) TestTable_HasColumn_WithExistingColumn() {
+	// arrange.
+	usernameField := "Username"
+	usernameColumnName := "username"
+	passwordField := "Password"
+	passwordColumnName := "password"
+	usernameColumn := morph.Column{}
+	usernameColumn.SetField(usernameField)
+	usernameColumn.SetName(usernameColumnName)
+	passwordColumn := morph.Column{}
+	passwordColumn.SetField(passwordField)
+	passwordColumn.SetName(passwordColumnName)
+	columns := []morph.Column{usernameColumn, passwordColumn}
+	s.Require().NoError(s.sut.AddColumns(columns...))
+
+	// action + assert.
+	s.True(s.sut.HasColumn(usernameColumnName))
+}
+
+func (s *TableTestSuite) TestTable_HasColumn_WithNonExistentColumn() {
+	// arrange.
+	usernameField := "Username"
+	usernameColumnName := "username"
+	usernameColumn := morph.Column{}
+	usernameColumn.SetField(usernameField)
+	usernameColumn.SetName(usernameColumnName)
+	columns := []morph.Column{usernameColumn}
+	s.Require().NoError(s.sut.AddColumns(columns...))
+
+	// action + assert.
+	s.False(s.sut.HasColumn("password"))
+}
+
 func (s *TableTestSuite) TestTable_ColumnNames() {
 	// arrange.
 	usernameField := "Username"
