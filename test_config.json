@@ -39,6 +39,51 @@
           "fieldType": "string",
           "fieldStrategy": "method",
           "primaryKey": false
+        },
+        {
+          "name": "business_uuid",
+          "field": "BusinessUUID",
+          "fieldType": "string",
+          "fieldStrategy": "method",
+          "primaryKey": false
+        }
+      ],
+      "references": [
+        {
+          "tableName": "business",
+          "foreignKey": [
+            {
+              "columnName": "business_uuid"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "typeName": "example.Business",
+      "name": "business",
+      "alias": "B",
+      "columns": [
+        {
+          "name": "uuid",
+          "field": "UUID",
+          "fieldType": "string",
+          "fieldStrategy": "method",
+          "primaryKey": true
+        },
+        {
+          "name": "name",
+          "field": "Name",
+          "fieldType": "string",
+          "fieldStrategy": "method",
+          "primaryKey": false
+        },
+        {
+          "name": "establishedAt",
+          "field": "EstablishedAt",
+          "fieldType": "time.Time",
+          "fieldStrategy": "method",
+          "primaryKey": false
         }
       ]
     }
