@@ -662,6 +662,11 @@ func (s *TableTestSuite) TestTable_SetAlias() {
 	s.Equal(expectedAlias, s.sut.Alias())
 }
 
+func (s *TableTestSuite) TestTable_HasColumn_NoColumns() {
+	// action + assert.
+	s.False(s.sut.HasColumn("username"))
+}
+
 func (s *TableTestSuite) TestTable_HasColumn_WithExistingColumn() {
 	// arrange.
 	usernameField := "Username"
