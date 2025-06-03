@@ -54,61 +54,53 @@ func WithoutEmptyValues(obj any) QueryOption {
 	}
 }
 
-// insertSQL is the raw template contents used to generate an insert query.
 const insertSQL = `
   {{- $table := .Table -}}
   {{- $options := .Options -}}
-  {{- $seq := 0 -}}
   INSERT INTO {{$table.Name}} (
   {{- range $idx, $col := $table.Columns -}}
     {{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
   {{- end -}}
   ) VALUES (
   {{- range $idx, $col := $table.Columns -}}
-    {{- $seq = add $seq 1 -}}
-    {{param $col.Name $options $seq}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
+    {{param $col.Name $options (add $idx 1)}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
   {{- end -}}
   );`
 
-// updateSQL is the raw template contents used to generate an update query.
 const updateSQL = `
   {{- $table := .Table -}}
   {{- $options := .Options -}}
-  {{- $seq := 0 -}}
   {{- $data := .Data -}}
   {{- $nonPrimaryKeys := .NonKeys -}}
-  UPDATE {{$table.Name}} AS {{$table.Alias}} SET {{- if true}} {{end}}
+  UPDATE {{$table.Name}} AS {{$table.Alias}} SET
   {{- range $idx, $col := $nonPrimaryKeys -}}
-    {{- if omit $data $col.Name -}} {{continue}} {{- end -}}
-    {{- if ne $idx 0 -}} , {{end}}
-    {{- $seq = add $seq 1 -}}
-    {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
+    {{- if not (omit $data $col.Name) -}}
+      {{- if ne $idx 0 -}}, {{end}}
+      {{$table.Alias}}.{{.Name}} = {{param $col.Name $options (add $idx 1)}}
+    {{- end -}}
   {{- end }} WHERE 1=1
   {{- range $idx, $col := .Key -}}
-    {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
+    AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options (add $idx 1)}}
   {{- end -}};`
 
-// deleteSQL is the raw template contents used to generate a delete query.
 const deleteSQL = `
   {{- $table := .Table -}}
   {{- $options := .Options -}}
-  {{- $seq := 0 -}}
   DELETE FROM {{$table.Name}} WHERE 1=1
   {{- range $idx, $col := .Key -}}
-    {{- $seq = add $seq 1 }} AND {{.Name}} = {{param $col.Name $options $seq}}
+    AND {{.Name}} = {{param $col.Name $options (add $idx 1)}}
   {{- end -}};`
 
 const selectSQL = `
   {{- $table := .Table -}}
   {{- $options := .Options -}}
-  {{- $seq := 0 -}}
-  SELECT {{- if true}} {{end}}
+  SELECT
   {{- range $idx, $col := $table.Columns -}}
     {{$table.Alias}}.{{$col.Name}}{{if ne $idx (sub (len $table.Columns) 1)}}, {{end}}
   {{- end -}}
-  {{- if true}} {{end -}} FROM {{$table.Name}} AS {{$table.Alias}} WHERE 1=1
+  FROM {{$table.Name}} AS {{$table.Alias}} WHERE 1=1
   {{- range $idx, $col := .Key -}}
-    {{- $seq = add $seq 1 }} AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options $seq}}
+    AND {{$table.Alias}}.{{.Name}} = {{param $col.Name $options (add $idx 1)}}
   {{- end -}};`
 
 var (
