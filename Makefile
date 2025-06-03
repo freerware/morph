@@ -9,5 +9,8 @@ bins:
 tests: bins
 	go test -v -race -covermode=atomic -coverprofile=morph.coverprofile
 
+coverage: tests
+	go tool cover -html=morph.coverprofile
+
 benchmarks: bins
 	go test -C internal -run XXX -bench=.

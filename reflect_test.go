@@ -36,6 +36,7 @@ type AnotherTestModel struct {
 	Title       string
 	Description *string
 	secret      string
+	ModelID     int // foreign key
 }
 
 type ReflectTestSuite struct {
@@ -59,6 +60,7 @@ func (s *ReflectTestSuite) SetupTest() {
 			ID:          2,
 			Title:       "another",
 			Description: nil,
+			ModelID:     1,
 			secret:      "shhh!",
 		},
 	}
